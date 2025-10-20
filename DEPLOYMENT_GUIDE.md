@@ -19,20 +19,16 @@
 
 **Location**: `vscode attempt/lambda.py`
 
-```powershell
-# Navigate to project folder
-cd "C:\Users\Mathias\Downloads\docshare-16-10-2025-fixed\vscode attempt"
+**Deployment Method**: Copy-paste code directly into AWS Lambda Console
 
-# Option A: Use deployment script
-.\deploy-lambda.ps1
-
-# Option B: Manual deployment
-zip lambda.zip lambda.py
-aws lambda update-function-code `
-  --function-name dfj-docshare-prod `
-  --zip-file fileb://lambda.zip `
-  --region eu-north-1
-```
+#### Steps:
+1. Open `vscode attempt/lambda.py` in your editor
+2. Select all content (Ctrl+A) and copy (Ctrl+C)
+3. Go to AWS Lambda Console → Functions → `dfj-docshare-prod`
+4. Click the "Code" tab
+5. Select all existing code and paste the new code
+6. Click "Deploy" button (top right)
+7. Wait for "Changes deployed" message
 
 **Verify**: 
 ```powershell
@@ -40,13 +36,13 @@ Invoke-RestMethod -Uri "https://YOUR-PROD-API-URL/ping" -Method Get
 # Expected: {"ok": true}
 ```
 
-**Time**: ~5 minutes
+**Time**: ~3 minutes
 
 ---
 
 ### 2. Update Lambda Environment Variables
 
-Set these environment variables in AWS Lambda Console or via CLI:
+Set these environment variables in AWS Lambda Console:
 
 ```bash
 BUCKET=dfj-docs-prod
@@ -63,7 +59,44 @@ URL_TTL_SECONDS=600
 
 **Reference**: Use values from `prod-version/lambda_env_variables` (replace placeholders)
 
-**Time**: ~3 minutes
+---
+
+#### How to Obtain Salesforce Refresh Token
+
+**Option A: Via Salesforce CLI (PowerShell)**
+```powershell
+# 1. Login to Salesforce (opens browser)
+sf org login web --alias Prod --instance-url https://login.salesforce.com
+
+# 2. Display org info including refresh token
+sf org display --verbose --target-org Prod
+
+# Look for "Refresh Token" in the output
+```
+
+**Option B: Via Terminal (bash/zsh)**
+```bash
+# 1. Login to Salesforce
+sf org login web --alias Prod --instance-url https://login.salesforce.com
+
+# 2. Display org info
+sf org display --verbose --target-org Prod | grep "Refresh Token"
+```
+
+**Option C: From Existing Auth File (PowerShell)**
+```powershell
+# Salesforce CLI stores auth in JSON files
+$authFile = "$env:USERPROFILE\.sf\[ORG_USERNAME].json"
+Get-Content $authFile | ConvertFrom-Json | Select-Object -ExpandProperty refreshToken
+```
+
+**Option D: Manual via Connected App**
+1. Setup → App Manager → Find your Connected App
+2. View details → Note Client ID and Client Secret
+3. Use OAuth 2.0 Username-Password flow to get refresh token
+4. Endpoint: `https://login.salesforce.com/services/oauth2/token`
+
+**Time**: ~5 minutes
 
 ---
 
@@ -71,22 +104,34 @@ URL_TTL_SECONDS=600
 
 **Location**: `vscode attempt/salesforce/classes/`
 
-```powershell
-# Navigate to Salesforce CLI project (or create temp project)
-sf project deploy start `
-  --source-dir "vscode attempt/salesforce/classes" `
-  --target-org Prod
+**Deployment Method**: Salesforce DevOps Center
 
-# Or use Salesforce UI:
-# Setup → Apex Classes → Deploy from Changed Source
-```
+#### Steps:
+1. Go to Salesforce → App Launcher → Search "DevOps Center"
+2. Select your project or create new deployment
+3. Click "Create Work Item" → "Deployment"
+4. Select source org: Sandbox (`mt@dinfamiliejurist.dk.itdevopsi`)
+5. Select target org: Production (`mt@dinfamiliejurist.dk`)
+6. Add components to deployment:
+   - DocShareService.cls
+   - DocShare_JournalCreds.cls
+   - DocShare_Query.cls
+7. Click "Validate Deployment"
+8. **Set test level**: Specify test classes to run:
+   - Test1: `DocShareService_Test`
+   - Test2: `DocShare_JournalCreds_Test`
+   - Test3: `DocShare_Query_Test`
+   - (Or use "Run Local Tests" if test classes don't exist)
+9. Review validation results
+10. Click "Deploy Now"
+11. Monitor deployment progress
 
 **Classes to deploy**:
 - ✅ DocShareService.cls
 - ✅ DocShare_JournalCreds.cls
 - ✅ DocShare_Query.cls
 
-**Time**: ~3 minutes
+**Time**: ~10 minutes
 
 ---
 
@@ -94,15 +139,17 @@ sf project deploy start `
 
 **Location**: `vscode attempt/salesforce/lwc/journalDocConsole/`
 
-```powershell
-# Using Salesforce CLI
-sf project deploy start `
-  --source-dir "vscode attempt/salesforce/lwc" `
-  --target-org Prod
+**Deployment Method**: Salesforce DevOps Center
 
-# Or use Salesforce UI:
-# Setup → Lightning Components → Deploy journalDocConsole
-```
+#### Steps:
+1. Go to Salesforce → DevOps Center
+2. Use same deployment as Apex classes OR create new deployment
+3. Add LWC component to deployment:
+   - journalDocConsole (entire bundle)
+4. Click "Validate Deployment"
+5. Review validation (LWC doesn't require tests)
+6. Click "Deploy Now"
+7. Monitor deployment progress
 
 **Files deployed**:
 - ✅ journalDocConsole.js
@@ -110,7 +157,9 @@ sf project deploy start `
 - ✅ journalDocConsole.css
 - ✅ journalDocConsole.js-meta.xml
 
-**Time**: ~2 minutes
+**Note**: Can be deployed together with Apex classes in step 3
+
+**Time**: ~5 minutes
 
 ---
 
@@ -118,16 +167,19 @@ sf project deploy start `
 
 **Location**: `vscode attempt/` (root files)
 
-**Upload to S3 (or your hosting)**:
+**Deployment Method**: Manual file upload to hosting/S3
 
-```powershell
-# Example S3 deployment
-aws s3 cp "vscode attempt/index.html" s3://your-prod-bucket/index.html
-aws s3 cp "vscode attempt/app.js" s3://your-prod-bucket/app.js
-aws s3 cp "vscode attempt/brand.js" s3://your-prod-bucket/brand.js
-aws s3 cp "vscode attempt/texts.js" s3://your-prod-bucket/texts.js
-aws s3 cp "vscode attempt/styles.css" s3://your-prod-bucket/styles.css
-```
+#### Steps:
+1. Open your hosting provider's file manager or S3 console
+2. Navigate to the production website directory
+3. Upload and **overwrite** these files:
+   - `index.html`
+   - `app.js`
+   - `brand.js`
+   - `texts.js`
+   - `styles.css`
+4. If assets changed, upload `assets/` folder contents
+5. Verify file upload completed successfully
 
 **Files to deploy**:
 - ✅ index.html
@@ -135,7 +187,16 @@ aws s3 cp "vscode attempt/styles.css" s3://your-prod-bucket/styles.css
 - ✅ brand.js (multi-brand support)
 - ✅ texts.js (translations)
 - ✅ styles.css (all UI fixes)
-- ✅ assets/ folder (logos, favicons)
+- ✅ assets/ folder (logos, favicons) - *if changed*
+
+**Alternative - S3 CLI (if preferred)**:
+```powershell
+aws s3 cp "vscode attempt/index.html" s3://your-prod-bucket/index.html
+aws s3 cp "vscode attempt/app.js" s3://your-prod-bucket/app.js
+aws s3 cp "vscode attempt/brand.js" s3://your-prod-bucket/brand.js
+aws s3 cp "vscode attempt/texts.js" s3://your-prod-bucket/texts.js
+aws s3 cp "vscode attempt/styles.css" s3://your-prod-bucket/styles.css
+```
 
 **Time**: ~5 minutes
 

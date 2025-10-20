@@ -19,18 +19,16 @@ Use this guide if:
 
 If you need to rollback **immediately**:
 
-```powershell
-# 1. Rollback Lambda
-cd "C:\Users\Mathias\Downloads\docshare-16-10-2025-fixed\prod-version"
-zip lambda-old.zip lambda.py
-aws lambda update-function-code `
-  --function-name dfj-docshare-prod `
-  --zip-file fileb://lambda-old.zip `
-  --region eu-north-1
+**1. Rollback Lambda** (copy-paste method):
+1. Open `prod-version/lambda.py` 
+2. Copy all content (Ctrl+A, Ctrl+C)
+3. Go to AWS Lambda Console → `dfj-docshare-prod` → Code tab
+4. Paste old code and click "Deploy"
 
-# 2. Rollback Frontend (S3 example)
-aws s3 sync . s3://your-prod-bucket/ --exclude "*" --include "*.js" --include "*.html" --include "*.css"
-```
+**2. Rollback Frontend** (file upload method):
+1. Open hosting provider file manager or S3 console
+2. Upload files from `prod-version/` folder
+3. Overwrite: index.html, app.js, brand.js, texts.js, styles.css
 
 ---
 
@@ -40,27 +38,16 @@ aws s3 sync . s3://your-prod-bucket/ --exclude "*" --include "*.js" --include "*
 
 **Backup Location**: `prod-version/lambda.py`
 
-#### Method A: Using AWS Console
-1. Go to AWS Lambda Console
-2. Select function: `dfj-docshare-prod`
-3. Click "Versions" tab
-4. Find previous version (before v1.3 deployment)
-5. Click "Actions" → "Promote to $LATEST"
+**Rollback Method**: Copy-paste code directly into AWS Lambda Console
 
-#### Method B: Using CLI
-```powershell
-# Navigate to prod-version folder
-cd "C:\Users\Mathias\Downloads\docshare-16-10-2025-fixed\prod-version"
-
-# Create backup zip
-zip lambda-backup.zip lambda.py
-
-# Deploy old version
-aws lambda update-function-code `
-  --function-name dfj-docshare-prod `
-  --zip-file fileb://lambda-backup.zip `
-  --region eu-north-1
-```
+#### Steps:
+1. Open `prod-version/lambda.py` in your editor
+2. Select all content (Ctrl+A) and copy (Ctrl+C)
+3. Go to AWS Lambda Console → Functions → `dfj-docshare-prod`
+4. Click the "Code" tab
+5. Select all existing code and paste the old code
+6. Click "Deploy" button (top right)
+7. Wait for "Changes deployed" message
 
 **Verify**:
 ```powershell
@@ -101,32 +88,39 @@ aws lambda update-function-configuration `
 
 **Backup Location**: `prod-version/salesforce/classes/`
 
-#### Using Salesforce CLI:
-```powershell
-cd "C:\Users\Mathias\Downloads\docshare-16-10-2025-fixed\prod-version"
+**Rollback Method**: Salesforce DevOps Center
 
-# Deploy old versions
-sf project deploy start `
-  --source-dir "salesforce/classes" `
-  --target-org Prod
-```
+#### Steps:
+1. Go to Salesforce → DevOps Center
+2. Click "Create Work Item" → "Deployment"
+3. Select source: Production backup or manually specify components
+4. Select target org: Production (`mt@dinfamiliejurist.dk`)
+5. Add Apex classes to rollback:
+   - DocShareService.cls
+   - DocShare_JournalCreds.cls
+   - DocShare_Query.cls
+6. Click "Validate Deployment"
+7. **Set test level**: Specify test classes:
+   - Test1: `DocShareService_Test`
+   - Test2: `DocShare_JournalCreds_Test`
+   - Test3: `DocShare_Query_Test`
+8. Review validation results
+9. Click "Deploy Now"
+10. Monitor deployment progress
 
-#### Using Salesforce UI:
+**Alternative - Quick Edit via UI** (for urgent fixes):
 1. Setup → Apex Classes
-2. Find each class:
-   - DocShareService
-   - DocShare_JournalCreds
-   - DocShare_Query
-3. Click class name → Click "Show Dependencies"
-4. If safe, click "Edit" → Paste old code from `prod-version/salesforce/classes/`
-5. Click "Save"
+2. Find each class → Click "Edit"
+3. Copy content from `prod-version/salesforce/classes/[ClassName].cls`
+4. Paste and click "Save"
+5. Repeat for all 3 classes
 
 **Classes to rollback**:
 - ✅ DocShareService.cls
 - ✅ DocShare_JournalCreds.cls
 - ✅ DocShare_Query.cls
 
-**Time**: ~5 minutes
+**Time**: ~10 minutes (DevOps Center) or ~5 minutes (UI Edit)
 
 ---
 
@@ -134,22 +128,17 @@ sf project deploy start `
 
 **Backup Location**: `prod-version/salesforce/lwc/journalDocConsole/`
 
-#### Using Salesforce CLI:
-```powershell
-cd "C:\Users\Mathias\Downloads\docshare-16-10-2025-fixed\prod-version"
+**Rollback Method**: Salesforce DevOps Center
 
-# Deploy old LWC
-sf project deploy start `
-  --source-dir "salesforce/lwc" `
-  --target-org Prod
-```
-
-#### Using Salesforce UI:
-1. Setup → Lightning Components → journalDocConsole
-2. Click component name
-3. Click each file (JS, HTML, CSS)
-4. Copy content from `prod-version/salesforce/lwc/journalDocConsole/`
-5. Paste and save
+#### Steps:
+1. Go to Salesforce → DevOps Center
+2. Use same deployment as Apex rollback OR create new deployment
+3. Add LWC component to rollback:
+   - journalDocConsole (entire bundle)
+4. Click "Validate Deployment"
+5. Review validation
+6. Click "Deploy Now"
+7. Monitor deployment progress
 
 **Files to rollback**:
 - ✅ journalDocConsole.js
@@ -157,7 +146,9 @@ sf project deploy start `
 - ✅ journalDocConsole.css
 - ✅ journalDocConsole.js-meta.xml
 
-**Time**: ~3 minutes
+**Note**: Can be rolled back together with Apex classes in step 3
+
+**Time**: ~5 minutes
 
 ---
 
@@ -165,32 +156,30 @@ sf project deploy start `
 
 **Backup Location**: `prod-version/` (root files)
 
-#### Option A: S3 Deployment
+**Rollback Method**: Manual file upload to hosting/S3
+
+#### Steps:
+1. Open your hosting provider's file manager or S3 console
+2. Navigate to the production website directory
+3. Upload and **overwrite** these files from `prod-version/`:
+   - `index.html`
+   - `app.js`
+   - `brand.js`
+   - `texts.js`
+   - `styles.css`
+4. If assets were changed, restore `assets/` folder contents
+5. Verify file upload completed successfully
+
+**Alternative - S3 CLI (if preferred)**:
 ```powershell
 cd "C:\Users\Mathias\Downloads\docshare-16-10-2025-fixed\prod-version"
 
-# Upload old files
 aws s3 cp index.html s3://your-prod-bucket/index.html
 aws s3 cp app.js s3://your-prod-bucket/app.js
 aws s3 cp brand.js s3://your-prod-bucket/brand.js
 aws s3 cp texts.js s3://your-prod-bucket/texts.js
 aws s3 cp styles.css s3://your-prod-bucket/styles.css
-
-# Upload assets
-aws s3 sync assets/ s3://your-prod-bucket/assets/ --delete
 ```
-
-#### Option B: Manual Upload
-If using different hosting:
-1. Download files from `prod-version/` folder
-2. Upload to your production server/CDN
-3. Replace:
-   - index.html
-   - app.js
-   - brand.js
-   - texts.js
-   - styles.css
-   - assets/ folder
 
 **Time**: ~5 minutes
 
