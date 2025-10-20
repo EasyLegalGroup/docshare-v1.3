@@ -32,7 +32,7 @@ Thumbs.db
 # Environment variables (DO NOT commit secrets!)
 .env
 .env.local
-lambda_env_variables
+# lambda_env_variables - INCLUDED in repo as template, replace with real values before deployment
 
 # Build outputs
 dist/
