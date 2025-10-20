@@ -1,7 +1,7 @@
 # Journal Selection Feature - Implementation Summary
 
 ## Overview
-Added a "bridge page" that allows users to select which journal they want to view when multiple journals are found for their identifier (phone/email).
+Added a "bridge page" (journal overview) that **ALWAYS** displays after OTP verification, showing all journals associated with the user's identifier (phone/email). This provides a consistent navigation pattern regardless of journal count.
 
 ## User Flow
 
@@ -12,13 +12,15 @@ Added a "bridge page" that allows users to select which journal they want to vie
 4. Customer selects Journal C
 5. System shows only the 2 documents related to Journal C
 6. Chat shows only messages related to Journal C
-7. **"Back to Journals" button** appears in top-left corner
+7. **"← Tilbage til oversigt" button** appears in top-left corner
 
 ### Example 2: Single Journal
 1. Customer verifies OTP
 2. System finds 3 documents all in the same journal
-3. **Bridge page skipped** - goes directly to document list
-4. Shows all 3 documents and related chat messages
+3. **Bridge page appears** showing the 1 journal
+4. Customer clicks the journal card
+5. System shows all 3 documents and related chat messages
+6. **"← Tilbage til oversigt" button** still appears (returns to overview)
 
 ## Changes Made
 
@@ -51,8 +53,8 @@ let selectedJournalId = '';  // currently selected journal ID
 - **Purpose**: Fetches all documents and extracts unique journals
 - **Logic**:
   - If 0 journals: Shows error
-  - If 1 journal: Auto-selects and skips bridge page
-  - If 2+ journals: Sets `selectedJournalId = ''` to trigger bridge page
+  - If 1+ journals: Sets `selectedJournalId = ''` to **ALWAYS** show bridge page
+  - **No auto-skip**: Bridge page shown regardless of journal count for consistent UX
 
 #### `fetchDocs()` - Line ~450
 - **Added**: Includes `journalId: selectedJournalId` in payload when journal is selected
@@ -76,14 +78,14 @@ let selectedJournalId = '';  // currently selected journal ID
 
 #### `showBackToJournalsButton()` - NEW function
 - **Purpose**: Creates floating back button in top-left corner
-- **Visibility**: Only in identifier mode with 2+ journals
+- **Visibility**: Always shown in identifier mode (even with 1 journal)
 - **Behavior**: Returns to bridge page, hides portal UI
 
 #### OTP Form Submission - Line ~951
 - **Added**: Check for journal selection before entering portal:
   ```javascript
-  if (MODE === 'identifier' && availableJournals.length > 1 && !selectedJournalId) {
-    showJournalSelection();
+  if (MODE === 'identifier' && availableJournals.length >= 1 && !selectedJournalId) {
+    showJournalSelection();  // Always show bridge page
     return;
   }
   ```
