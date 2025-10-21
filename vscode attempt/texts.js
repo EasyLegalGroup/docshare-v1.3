@@ -115,14 +115,14 @@
     en: "✓ All approved"
   },
   BACK_TO_OVERVIEW: {
-    da: "Tilbage til oversigt",
-    sv: "Tillbaka till översikt",
-    en: "Back to Overview"
+    da: "← Tilbage til oversigt",
+    sv: "← Tillbaka till översikt",
+    en: "← Back to Overview"
   },
   BACK_TO_JOURNALS: {
-    da: "Tilbage til journaler",
-    sv: "Tillbaka till journaler",
-    en: "Back to Journals"
+    da: "← Tilbage til journaler",
+    sv: "← Tillbaka till journaler",
+    en: "← Back to Journals"
   },
   JOURNAL_FIRST_DRAFT_SENT: {
     da: "Første udkast tilsendt: ",

@@ -79,7 +79,6 @@ function hasSeenLabel(){
 
 let docs = [], active = 0, completionShown = false, currentPresigned = '';
 let shouldStartTour = false, tourActive = false;
-let currentDocumentId = null;  // Track current document for chat
 
 /* ----------------------------------------------------------
    i18n helpers & dynamic substitutions
@@ -576,9 +575,6 @@ async function loadCurrent(){
     setMsg(_t_safe('LOADING')); if ($('pdf')) $('pdf').src='';
     spin(true);
     
-    // Set current document ID for chat
-    currentDocumentId = docs[active].id;
-    
     currentPresigned = await presign(docs[active].id);
     if ($('pdf')) $('pdf').src=currentPresigned+'#toolbar=0&zoom=150';
     setMsg('');
@@ -807,20 +803,10 @@ function openChatPanel(source='user'){
   const panel=$('chatPanel'), label=$('chatLabel'), header=$('chatHeader');
   if (!panel || !header) return;
   
-  if (!currentDocumentId) {
-    // Show warning toast if no document is open
-    if (typeof showToast === 'function') {
-      showToast(_t_safe('CHAT_NO_DOC_WARNING') || 'Please open a document first', 'warning');
-    } else {
-      alert(_t_safe('CHAT_NO_DOC_WARNING') || 'Please open a document first');
-    }
-    return;
-  }
-  
   panel.style.display='flex'; panel.classList.remove('hidden'); header.textContent = _t_safe('CHAT_HEADER_OPEN');
   if (label){ label.style.display='none'; label.classList.add('hidden'); }
   
-  // Clear old messages when switching documents
+  // Clear old messages when switching journals
   chatCache.length = 0;
   chatSeen.clear();
   

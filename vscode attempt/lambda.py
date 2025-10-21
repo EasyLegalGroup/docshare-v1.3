@@ -1200,6 +1200,13 @@ def handle_chat_list(event):
         return resp(event, 500, {"error": "Salesforce query failed"})
 
 def handle_identifier_chat_list(event, data):
+    # DEBUG: Log what we receive
+    log("CHAT_LIST_DEBUG:", {
+        "data_keys": list(data.keys()) if data else [],
+        "journalId": data.get("journalId") if data else None,
+        "raw_body": (event.get("body") or "")[:200]
+    })
+    
     # Authorization: Bearer <session>
     token = get_bearer(event)
     if not token:
@@ -1209,8 +1216,14 @@ def handle_identifier_chat_list(event, data):
     except Exception:
         return resp(event, 401, {"error": "Invalid session"})
     
+    # Parse body here if 'data' is empty (fallback)
+    if not data:
+        log("CHAT_LIST_DEBUG: data is empty, calling _parse_body()")
+        data = _parse_body(event)
+    
     journal_id = (data.get("journalId") or "").strip()
     if not journal_id:
+        log("CHAT_LIST_ERROR: Missing journalId in data. Full data:", data)
         return resp(event, 400, {"error": "Missing journalId"})
     
     since = (data.get("since") or "").strip()
@@ -1240,6 +1253,16 @@ def handle_identifier_chat_list(event, data):
         return resp(event, 500, {"error": "Salesforce query failed"})
 
 def handle_identifier_chat_send(event, data):
+    # DEBUG: Log what we receive
+    log("CHAT_SEND_DEBUG:", {
+        "data_keys": list(data.keys()) if data else [],
+        "data_type": type(data).__name__,
+        "journalId": data.get("journalId") if data else None,
+        "body": data.get("body") if data else None,
+        "raw_body": (event.get("body") or "")[:200],
+        "is_base64": event.get("isBase64Encoded", False)
+    })
+    
     # Authorization: Bearer <session>
     token = get_bearer(event)
     if not token:
@@ -1249,12 +1272,20 @@ def handle_identifier_chat_send(event, data):
     except Exception:
         return resp(event, 401, {"error": "Invalid session"})
     
+    # Parse body here if 'data' is empty (fallback)
+    if not data:
+        log("CHAT_SEND_DEBUG: data is empty, calling _parse_body()")
+        data = _parse_body(event)
+        log("CHAT_SEND_DEBUG: After _parse_body:", list(data.keys()) if data else [])
+    
     journal_id = (data.get("journalId") or "").strip()
     body       = (data.get("body") or "").strip()
     
     if not journal_id:
+        log("CHAT_SEND_ERROR: Missing journalId in data. Full data:", data)
         return resp(event, 400, {"error": "Missing journalId"})
     if not body:
+        log("CHAT_SEND_ERROR: Missing body in data. Full data:", data)
         return resp(event, 400, {"error": "Missing body"})
     
     # Insert message directly to journal
@@ -1349,11 +1380,13 @@ def lambda_handler(event, context):
         if path.endswith("/upload-start")               and method == "POST": return handle_upload_start(event, data)
         if path.endswith("/approve")                    and method == "POST": return handle_doc_approve(event, data)
 
-        # Chat (journal + identifier)
-        if path.endswith("/chat/list")                  and method == "GET":  return handle_chat_list(event)
-        if path.endswith("/chat/send")                  and method == "POST": return handle_chat_send(event, data)
-        if path.endswith("/identifier/chat/list")       and method == "POST": return handle_identifier_chat_list(event, data)
+        # Chat (identifier-specific routes MUST come before journal routes to avoid path collision!)
         if path.endswith("/identifier/chat/send")       and method == "POST": return handle_identifier_chat_send(event, data)
+        if path.endswith("/identifier/chat/list")       and method == "POST": return handle_identifier_chat_list(event, data)
+        
+        # Chat (journal legacy)
+        if path.endswith("/chat/send")                  and method == "POST": return handle_chat_send(event, data)
+        if path.endswith("/chat/list")                  and method == "GET":  return handle_chat_list(event)
 
         return resp(event, 404, {"error": "Not Found"})
 
