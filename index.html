@@ -64,10 +64,9 @@
 
     <!-- STEP 2: verify-only (OTP input + Verify + Start over) -->
     <div id="verifyStep" class="hidden">
-      <div class="verify-header">
-        <p id="verifySub" class="verify-sub"></p>
-        <button id="startOverBtn" class="ghost danger" data-i18n="START_OVER_BTN">Start forfra</button>
-      </div>
+      <button id="startOverBtn" class="ghost danger start-over-btn" data-i18n="START_OVER_BTN">Start forfra</button>
+      
+      <p id="verifySub" class="verify-sub"></p>
 
       <form id="otpForm" class="otp-form">
         <input id="otp" maxlength="6" autocomplete="one-time-code" inputmode="numeric" required>
@@ -80,16 +79,17 @@
 
   <!-- Sidebar ---------------------------------------------------------------- -->
   <aside class="card sidebar hidden" id="sidebar">
-    <button id="approveAllBtn" class="ghost approve-all-top hidden" data-i18n="APPROVE_ALL_BTN"></button>
-
-    <!-- Back to journals button (identifier mode only) -->
-    <div class="hidden" id="backToJournalsActions" style="margin-bottom: 12px;">
-      <button id="backToJournalsBtn" class="ghost colorful" data-i18n="BACK_TO_OVERVIEW" style="width: 100%;"></button>
+    <!-- NEW: Top-sticky back button area (moved above headers) -->
+    <div class="sidebar-top-actions hidden" id="backToJournalsActions">
+      <button id="backToJournalsBtn" class="ghost colorful" data-i18n="BACK_TO_OVERVIEW"></button>
     </div>
+
+    <button id="approveAllBtn" class="ghost approve-all-top hidden" data-i18n="APPROVE_ALL_BTN"></button>
 
     <div class="doc-group-header">
       <span data-i18n="SIDEBAR_PENDING"></span> (<span id="pendingCount">0</span>)
     </div>
+
     <div id="pendingList" class="doc-list"></div>
 
     <hr class="sidebar-sep">
