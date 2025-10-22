@@ -515,7 +515,7 @@
       TOUR_STEP_SIDEBAR : 'Här kan du se en lista över dina dokument – prova att klicka på ett!',
       TOUR_STEP_FAQ     : 'Här kan du hitta svar på de vanligaste frågorna',
       TOUR_STEP_PDF     : 'Här kan du se dokumentets innehåll. Läs igenom det och säkerställ att allt är som du vill.',
-      TOUR_STEP_CHAT    : 'Om du har frågor kan du skriva till oss här. Vi svarar inom 3-5 arbetsdagar – ofta snabbare!',
+      TOUR_STEP_CHAT    : 'Om du har frågor kan du skriva till oss här. Vi svarar dig inom de fem kommande arbetsdagarna.',
       TOUR_STEP_APPROVE : 'När du är nöjd klickar du “Godkänn” - du kommer då få ytterligare information om vad du ska tänka på vid den riktiga signeringen. ',
       TOUR_STEP_DOWNLOAD: 'Med dessa knappar kan du ladda ner eller skriva ut dokumentet som PDF.',
       TOUR_RELAUNCH     : 'Starta guiden igen',

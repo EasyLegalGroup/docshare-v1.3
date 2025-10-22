@@ -827,16 +827,48 @@ if ($('chatHeader')) $('chatHeader').onclick=()=>{ if($('chatPanel')?.style.disp
 if ($('chatLabel'))  $('chatLabel').onclick = () => openChatPanel('user');
 if ($('chatSend'))   $('chatSend').onclick=sendChat;
 if ($('chatEditor')) $('chatEditor').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.ctrlKey) sendChat(); });
+
+/* NEW: robust positioning that does not "grow" on scroll.
+   - Anchor horizontally using 'right' so width never feeds back into the calc.
+   - Measure natural size first to get correct height for vertical centering. */
 function positionChatLabel(){
-  const fab=$('chatFab'), label=$('chatLabel'); if (!fab || !label) return; if (label.classList.contains('hidden')) return;
+  const fab=$('chatFab'), label=$('chatLabel');
+  if (!fab || !label) return;
+  if (label.classList.contains('hidden')) return;
+
   const fr = fab.getBoundingClientRect();
-  const prev = label.style.display; if (prev === 'none') label.style.display = 'block';
+
+  // Ensure we can measure intrinsic size without feedback loops
+  const prev = {
+    display: label.style.display,
+    left: label.style.left,
+    right: label.style.right,
+    width: label.style.width
+  };
+  if (prev.display === 'none') label.style.display = 'block';
+
+  // Reset horizontal positioning for a clean measurement
+  label.style.left  = 'auto';
+  label.style.right = 'auto';
+  label.style.width = 'auto';
+
   const lr = label.getBoundingClientRect();
-  label.style.left = (fr.left - lr.width - 12) + 'px'; label.style.top  = (fr.top + (fr.height - lr.height)/2) + 'px';
-  label.style.display = prev;
+
+  const GAP = 12;
+  // Right distance from viewport edge to label's right edge
+  const rightPx = Math.max(0, window.innerWidth - fr.left + GAP);
+  label.style.right = rightPx + 'px';   // ← independent of label width
+  label.style.left  = 'auto';
+
+  // Vertical: center against FAB
+  label.style.top = (fr.top + (fr.height - lr.height)/2) + 'px';
+
+  // restore original display if we temporarily changed it
+  label.style.display = prev.display;
 }
 window.addEventListener('resize', positionChatLabel);
-window.addEventListener('scroll', positionChatLabel);
+window.addEventListener('scroll', positionChatLabel, { passive: true });
+// Note: FAB is fixed; scroll listener only handles mobile UI bars resizing.
 
 /* ----------------------------------------------------------
    In-app tour (your existing code can stay here)
@@ -1114,3 +1146,4 @@ if ($('approveBtn'))    $('approveBtn').onclick   =()=>tryApprove([docs[active].
 if ($('approveAllBtn')) $('approveAllBtn').onclick=()=>tryApprove(docs.filter(d=>d.status!=='Approved').map(d=>d.id));
 
 if ($('tourRelaunchBtn')) $('tourRelaunchBtn').onclick = ()=>{ shouldStartTour = false; if(typeof startTour==='function') startTour(); };
+

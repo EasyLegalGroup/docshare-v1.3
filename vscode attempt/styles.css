@@ -98,9 +98,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
   position:fixed;left:24px;top:80px;bottom:24px;width:260px;overflow:auto;display:flex;flex-direction:column;
   /* No reserved space; let the list slide under the sticky box */
   padding-bottom:0;
+  background:linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+  border-radius:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,.1), inset 0 1px 0 rgba(255,255,255,.6);
 }
 .sidebar.hidden{display:none}
-.sidebar .card{margin:0}
+.sidebar .card{margin:0;background:transparent;border:none;box-shadow:none}
 
 /* Sticky boxed actions at the bottom (overlays list items) */
 .sidebar-actions{
@@ -109,19 +112,50 @@ button:disabled{opacity:.45;cursor:not-allowed}
   bottom:0;                /* stick flush to sidebar bottom */
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:10px;
 
   /* Full-width overlay inside the sidebar */
   margin:0;
-  padding:12px 0 0 0;      /* top spacing before buttons */
-  background:var(--card);
-  border-top:1px solid var(--border);
+  padding:16px 0 0 0;      /* top spacing before buttons */
+  background:linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,1) 20%);
+  backdrop-filter:blur(8px);
+  border-top:2px solid #e5e7eb;
   border-left:0;border-right:0;border-bottom:0;
   border-radius:0;
-  box-shadow:0 -6px 20px rgba(0,0,0,.08); /* subtle top shadow */
+  box-shadow:0 -8px 24px rgba(0,0,0,.12); /* stronger top shadow for depth */
   z-index:10;              /* ensure it's above the document rows */
 }
-.sidebar-actions button{width:100%}
+.sidebar-actions button{
+  width:100%;
+  font-weight:600;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  transition:all .15s ease;
+}
+.sidebar-actions button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+
+/* Differentiate the action buttons */
+#tourRelaunchBtn{
+  background:linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+  border:1.5px solid #a5b4fc;
+  color:#4f46e5;
+}
+#tourRelaunchBtn:hover{
+  background:linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%);
+  border-color:#818cf8;
+}
+
+#faqBtn{
+  background:linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border:1.5px solid #fbbf24;
+  color:#92400e;
+}
+#faqBtn:hover{
+  background:linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+  border-color:#f59e0b;
+}
 
 /* ───────────────────────────────────────────────────────────
    VIEWER
@@ -137,19 +171,80 @@ button:disabled{opacity:.45;cursor:not-allowed}
 /* ───────────────────────────────────────────────────────────
    SIDEBAR LISTS
    ─────────────────────────────────────────────────────────── */
-.doc-group-header{padding:12px 16px;font-weight:600;border-bottom:1px solid var(--border);color:var(--accent);font-size:15px}
-.sidebar-sep{border:none;border-top:1px solid var(--border);margin:12px 0}
-.doc-list{padding:6px 0}
-.doc-item{padding:8px 16px;margin:4px 0;border-radius:20px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:transform .12s,box-shadow .12s}
-.doc-item:hover{transform:translateY(-2px);box-shadow:0 2px 6px rgba(0,0,0,.08)}
-.doc-item:not(.approved){background:#f9fafb;border:1px solid var(--border)}
-.doc-item.approved{background:#d1fae5;border:1px solid var(--ok);color:var(--ok-dark)}
-.doc-item.active{background:var(--accent);border:1px solid var(--accent);color:#fff}
-.doc-item.approved.active{box-shadow:0 0 0 2px var(--accent) inset}
+.doc-group-header{
+  padding:14px 16px;
+  font-weight:700;
+  font-size:13px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  background:linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-top:2px solid var(--accent);
+  border-bottom:1px solid #e2e8f0;
+  color:var(--accent);
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+  margin:0;
+}
+.sidebar-sep{
+  border:none;
+  border-top:2px solid #e5e7eb;
+  margin:16px 0;
+  box-shadow:0 1px 0 rgba(255,255,255,.8);
+}
+.doc-list{padding:8px 0}
+.doc-item{
+  padding:10px 16px;
+  margin:4px 8px;
+  border-radius:10px;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  cursor:pointer;
+  transition:all .15s ease;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.doc-item:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+.doc-item:not(.approved){
+  background:linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border:1px solid #e5e7eb;
+}
+.doc-item.approved{
+  background:linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border:1px solid #6ee7b7;
+  color:#065f46;
+  font-weight:500;
+}
+.doc-item.active{
+  background:linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+  border:1px solid var(--accent);
+  color:#fff;
+  font-weight:600;
+  box-shadow:0 4px 16px rgba(4, 4, 5, 0.3);
+}
+.doc-item.approved.active{
+  background:linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border:1.5px solid #86efac;
+  color:#166534;
+  font-weight:600;
+  box-shadow:0 4px 16px rgba(134,239,172,.25), 0 0 0 2px var(--accent) inset;
+}
 .approve-all-top{display:block;margin:8px auto 0}
 
 /* empty state items */
-.doc-empty{padding:10px 16px;margin:6px 16px;color:var(--muted);font-size:13px;background:#f9fafb;border:1px dashed var(--border);border-radius:12px}
+.doc-empty{
+  padding:12px 16px;
+  margin:8px 12px;
+  color:var(--muted);
+  font-size:13px;
+  font-style:italic;
+  background:linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  border:1.5px dashed #d1d5db;
+  border-radius:10px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.04);
+}
 
 /* ───────────────────────────────────────────────────────────
    CHAT
@@ -167,12 +262,15 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 .chat-label{
   position:fixed;
-  /* top/left dynamically positioned in JS for perfect vertical centering relative to FAB */
+  /* top/right dynamically positioned in JS for perfect vertical centering relative to FAB */
   background:var(--accent);color:#fff;padding:8px 14px;
   font-weight:800;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.2);
-  z-index:3006; /* raised so it's not hidden under tour overlay */
+  z-index:3500; /* above PDFs/iframes and overlays */
   animation:chatPulse 1.6s infinite ease-in-out alternate;
-  cursor:pointer; /* NEW: looks clickable */
+  cursor:pointer; /* looks clickable */
+  white-space:nowrap;           /* prevent multi-line growth */
+  max-width:60vw;               /* safety on very small screens */
+  display:inline-block;         /* stable intrinsic width for measurement */
 }
 @keyframes chatPulse{from{transform:translateY(0)}to{transform:translateY(-5px)}}
 
@@ -409,17 +507,32 @@ html[data-brand="ie"] #tourRing{ border-color:#0b8f3d; }
 
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:10px;
   margin:0;
-  padding:0 0 12px 0;
-  background:var(--card);
+  padding:0 0 16px 0;
+  background:linear-gradient(180deg, rgba(255,255,255,1) 70%, rgba(255,255,255,0.95) 100%);
+  backdrop-filter:blur(8px);
   border:0;
-  border-bottom:1px solid var(--border);
+  border-bottom:2px solid #e5e7eb;
   border-radius:0;
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
   z-index:10;
 }
-#backToJournalsActions button{ width:100%; }
+#backToJournalsActions button{
+  width:100%;
+  font-weight:600;
+  background:linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  border:1.5px solid #94a3b8;
+  color:#475569;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  transition:all .15s ease;
+}
+#backToJournalsActions button:hover{
+  background:linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-color:#64748b;
+  transform:translateY(-1px);
+  box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
 
 /* ensure the button is not fixed to the viewport */
 #backToJournalsBtn{
