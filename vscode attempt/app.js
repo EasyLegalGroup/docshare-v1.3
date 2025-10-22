@@ -53,6 +53,7 @@ let identifierValue = '';         // e164 phone or email string for verify-sub
 let sessionToken    = '';         // Bearer token returned by /identifier/verify-otp
 let availableJournals = [];       // journals found for identifier (for selection)
 let selectedJournalId = '';       // currently selected journal ID
+let selectedJournalName = '';     // currently selected journal name (e.g. "J-0055362")
 
 /* Brand-aware options */
 const VIDEO_URL  = qs.get('video') || (window.__BRAND && window.__BRAND.video) || DEFAULT_VIDEO_URL;
@@ -79,6 +80,46 @@ function hasSeenLabel(){
 
 let docs = [], active = 0, completionShown = false, currentPresigned = '';
 let shouldStartTour = false, tourActive = false;
+
+/* Session expiration handler */
+function handleSessionExpired(){
+  // Clear UI state
+  docs = [];
+  active = 0;
+  completionShown = false;
+  currentPresigned = '';
+  
+  // Reset to OTP screen
+  hide($('sidebar'));
+  hide($('viewerCard'));
+  hide($('chatFab'));
+  hide($('chatLabel'));
+  show($('otpCard'));
+  
+  // Show appropriate step based on mode
+  if (MODE === 'identifier') {
+    // Back to identifier entry
+    showStep('id');
+    setIdMsg('Session expired. Please sign in again.');
+  } else {
+    // Back to OTP verification for journal mode
+    showStep('verify');
+    setVerifySub();
+    setMsg('Session expired. Please enter the code again.');
+  }
+  
+  spin(false);
+}
+
+function isSessionExpired(response, json){
+  // Check for 401 status or session-related errors
+  if (response.status === 401) return true;
+  if (json && typeof json.error === 'string'){
+    const err = json.error.toLowerCase();
+    if (err.includes('session') || err.includes('expired') || err.includes('unauthorized') || err.includes('invalid token')) return true;
+  }
+  return false;
+}
 
 /* ----------------------------------------------------------
    i18n helpers & dynamic substitutions
@@ -483,6 +524,7 @@ async function fetchDocs(){
   if (MODE === 'journal'){
     const r = await fetch(DOC_LIST,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({externalId,accessToken}) });
     const j = await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
     if(!r.ok||!j.ok) throw Error(_t_safe('LIST_FAILED'));
     docs = (j.documents || []);
   } else {
@@ -493,6 +535,7 @@ async function fetchDocs(){
     }
     const r = await fetch(ID_LIST,{ method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`}, body:JSON.stringify(payload) });
     const j = await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
     if(!r.ok||!j.ok) throw Error(_t_safe('LIST_FAILED'));
     docs = (j.items || []);
   }
@@ -509,11 +552,13 @@ async function presign(id){
   if (MODE === 'journal'){
     const r = await fetch(DOC_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({externalId,accessToken,docId:id}) });
     const j = await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); throw Error('Session expired'); }
     if(!r.ok||!j.ok) throw Error(_t_safe('PRESIGN_FAILED'));
     return j.url;
   } else {
     const r = await fetch(ID_DOC_URL,{ method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`}, body:JSON.stringify({docId:id}) });
     const j = await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); throw Error('Session expired'); }
     if(!r.ok||!j.ok) throw Error(_t_safe('PRESIGN_FAILED'));
     return j.url;
   }
@@ -542,16 +587,8 @@ function renderLists(){
     list.forEach(doc=>{
       const div=document.createElement('div');
       div.className='doc-item'+(doc.status==='Approved'?' approved':'')+(doc===docs[active]?' active':'');
-      const title=document.createElement('div');
-      title.className='doc-title';
-      title.textContent=getDocName(doc);
-      div.appendChild(title);
-      if (doc.documentType){
-        const badge=document.createElement('span');
-        badge.className='doc-type-badge';
-        badge.textContent=doc.documentType;
-        div.appendChild(badge);
-      }
+      // Show only document type (no filename)
+      div.textContent = doc.documentType || getDocName(doc);
       div.onclick=()=>{
         maybeCloseSidebar();
         active=docs.indexOf(doc);
@@ -593,15 +630,15 @@ async function loadCurrent(){
   if ($('headerText')) $('headerText').textContent = allOk ? _t_safe('HEADER_ALL_OK') : _t_safe('HEADER_PENDING');
   if ($('viewCompletionBtn')) $('viewCompletionBtn').classList.toggle('hidden', !allOk);
 
-  const name = getDocName(doc);
+  const docType = doc.documentType || getDocName(doc);
   show($('approveRow'));
   if ($('approveBtn') && $('approveMsg')){
     if (curOk){
-      $('approveBtn').textContent = `${name} er godkendt`;
+      $('approveBtn').textContent = `${docType} er godkendt`;
       $('approveBtn').disabled = true;
       $('approveMsg').textContent = '';
     }else{
-      $('approveBtn').textContent = `${_t_safe('APPROVE_PREFIX')} ${name}`;
+      $('approveBtn').textContent = `${_t_safe('APPROVE_PREFIX')} ${docType}`;
       $('approveBtn').disabled = false;
       $('approveMsg').textContent = '';
     }
@@ -622,11 +659,29 @@ function doDownload(){
   }catch(e){ console.error(e); }
 }
 async function doPrint(){
+  if (!currentPresigned) {
+    try { $('pdf')?.contentWindow?.print?.(); } catch {}
+    return;
+  }
+  
+  // Try using the existing PDF iframe first
   try {
-    const res  = await fetch(currentPresigned, { mode: 'cors', credentials: 'omit' });
+    const pdfFrame = $('pdf');
+    if (pdfFrame && pdfFrame.contentWindow) {
+      pdfFrame.contentWindow.focus();
+      pdfFrame.contentWindow.print();
+      return;
+    }
+  } catch (e) {
+    console.log('Direct iframe print failed, trying blob method:', e);
+  }
+  
+  // Fallback: fetch and create blob URL
+  try {
+    const res = await fetch(currentPresigned, { mode: 'cors', credentials: 'omit' });
     if (!res.ok) throw new Error('PDF fetch failed');
     const blob = await res.blob();
-    const url  = URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const frame = document.createElement('iframe');
     frame.style.position='fixed'; frame.style.right='0'; frame.style.bottom='0'; frame.style.width='0'; frame.style.height='0'; frame.style.border='0';
     const cleanup=()=>{ try{URL.revokeObjectURL(url);}catch{} try{frame.remove();}catch{} };
@@ -640,8 +695,10 @@ async function doPrint(){
       setTimeout(cleanOnce, 120000);
     };
     frame.src = url; document.body.appendChild(frame);
-  } catch (_){
-    try { $('pdf')?.contentWindow?.print?.(); } catch {}
+  } catch (err) {
+    console.error('Blob print method failed:', err);
+    // Last resort: open in new window
+    window.open(currentPresigned, '_blank');
   }
 }
 
@@ -677,7 +734,9 @@ async function tryApprove(ids){
 
   if (MODE === 'journal'){
     const r=await fetch(APPROVE_URL,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({externalId,accessToken,docIds:ids}) });
-    const ok=r.ok&&(await r.json().catch(()=>({}))).ok;
+    const j=await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
+    const ok=r.ok&&j.ok;
     if(ok){
       ids.forEach(id=>{const d=docs.find(x=>x.id===id); if(d) d.status='Approved';});
       renderLists();await loadCurrent(); if ($('approveMsg')) $('approveMsg').textContent=_t_safe('APPROVE_THANKS');
@@ -685,6 +744,7 @@ async function tryApprove(ids){
   } else {
     const r=await fetch(ID_APPROVE,{ method:'POST', headers:{'Content-Type':'application/json','Authorization':`Bearer ${sessionToken}`}, body:JSON.stringify({docIds:ids}) });
     const j=await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
     if(r.ok && j.ok){
       ids.forEach(id=>{const d=docs.find(x=>x.id===id); if(d) d.status='Approved';});
       renderLists();await loadCurrent(); if ($('approveMsg')) $('approveMsg').textContent=_t_safe('APPROVE_THANKS');
@@ -740,6 +800,7 @@ async function fetchChat(){
     
     const r = await fetch(url, options);
     const j = await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
     if(!r.ok||!j.ok) return;
     
     j.messages.forEach(m=>{
@@ -788,7 +849,10 @@ async function sendChat(){
       };
     }
     
-    await fetch(url, options);
+    const r = await fetch(url, options);
+    const j = await r.json().catch(()=>({}));
+    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
+    
     ed.setAttribute('contenteditable','true');
     ed.innerHTML='';
     fetchChat();
@@ -987,6 +1051,10 @@ function showJournalSelection() {
 
 async function selectJournal(journalId) {
   selectedJournalId = journalId;
+  // Store journal name for brand bar display
+  const journal = availableJournals.find(j => j.id === journalId);
+  selectedJournalName = journal ? (journal.name || journal.id) : journalId;
+  
   spin(true);
   try {
     await fetchDocs(); 
@@ -1059,6 +1127,20 @@ function enterPortalUI(){
   // Show back button (identifier mode only - always visible now)
   if (MODE === 'identifier') {
     showBackToJournalsButton();
+  }
+  
+  // Display journal name in brand bar (journal mode only)
+  const journalNameEl = $('journalName');
+  if (journalNameEl) {
+    if (MODE === 'journal' && externalId) {
+      journalNameEl.textContent = `Journal: ${externalId}`;
+      journalNameEl.classList.remove('hidden');
+    } else if (MODE === 'identifier' && selectedJournalName) {
+      journalNameEl.textContent = `Journal: ${selectedJournalName}`;
+      journalNameEl.classList.remove('hidden');
+    } else {
+      journalNameEl.classList.add('hidden');
+    }
   }
 }
 

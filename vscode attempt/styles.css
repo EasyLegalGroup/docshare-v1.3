@@ -38,6 +38,7 @@ button{cursor:pointer;font:inherit}
 }
 .brand-logo{height:28px;width:auto}
 .tagline{font-size:15px;opacity:.9}
+.journal-name{font-size:15px;opacity:.9;margin-left:auto;font-weight:600}
 
 /* Hamburger – hidden on desktop, shown via media-query */
 .menu-btn{
