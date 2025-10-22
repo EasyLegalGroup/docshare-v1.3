@@ -81,6 +81,7 @@
       CHAT_PLACEHOLDER  : 'Skriv her…',
       CHAT_NO_MESSAGES  : 'Ingen beskeder endnu.',
       CHAT_LABEL        : 'Skriv til os her',
+      CHAT_DISCLAIMER   : 'Denne chat er ikke live. Vi sigter mod at svare inden for 2 arbejdsdage.',
       CHAT_EMPTY        : 'Ingen beskeder endnu. Send en besked for at starte samtalen.',
         CHAT_NO_DOC_WARNING: {
     da: "Åbn venligst et dokument først for at se relaterede beskeder.",
@@ -343,6 +344,7 @@
       CHAT_PLACEHOLDER  : 'Skriv här…',
       CHAT_NO_MESSAGES  : 'Inga meddelanden ännu.',
       CHAT_LABEL        : 'Skriv till oss här',
+      CHAT_DISCLAIMER   : 'Denna chatt är inte live. Vi strävar efter att svara inom 5 arbetsdagar.',
       CHAT_EMPTY        : 'Inga meddelanden ännu. Skicka ett meddelande för att starta konversationen.',
       CHAT_NO_DOC_WARNING: 'Öppna ett dokument först för att se relaterade meddelanden.',
 
@@ -603,6 +605,7 @@
       CHAT_PLACEHOLDER  : 'Write here…',
       CHAT_NO_MESSAGES  : 'No messages yet.',
       CHAT_LABEL        : 'Write to us here',
+      CHAT_DISCLAIMER   : 'This chat is not live. We aim to reply within 5 business days.',
       CHAT_EMPTY        : 'No messages yet. Send a message to start the conversation.',
       CHAT_NO_DOC_WARNING: 'Please open a document first to see related messages.',
 

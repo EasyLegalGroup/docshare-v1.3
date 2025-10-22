@@ -828,6 +828,30 @@ if ($('chatLabel'))  $('chatLabel').onclick = () => openChatPanel('user');
 if ($('chatSend'))   $('chatSend').onclick=sendChat;
 if ($('chatEditor')) $('chatEditor').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.ctrlKey) sendChat(); });
 
+/* Chat disclaimer close button */
+const CHAT_DISCLAIMER_KEY = 'dfj_chat_disclaimer_dismissed';
+if ($('chatDisclaimerClose')) {
+  $('chatDisclaimerClose').onclick = () => {
+    const disclaimer = $('chatDisclaimer');
+    if (disclaimer) {
+      disclaimer.classList.add('hidden');
+      try { localStorage.setItem(CHAT_DISCLAIMER_KEY, '1'); } catch(e){}
+    }
+  };
+}
+
+/* Check if disclaimer was previously dismissed */
+function showChatDisclaimer() {
+  try {
+    const dismissed = localStorage.getItem(CHAT_DISCLAIMER_KEY);
+    const disclaimer = $('chatDisclaimer');
+    if (disclaimer && dismissed === '1') {
+      disclaimer.classList.add('hidden');
+    }
+  } catch(e){}
+}
+showChatDisclaimer();
+
 /* NEW: robust positioning that does not "grow" on scroll.
    - Anchor horizontally using 'right' so width never feeds back into the calc.
    - Measure natural size first to get correct height for vertical centering. */
