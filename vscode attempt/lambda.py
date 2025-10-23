@@ -107,15 +107,17 @@ def _identifier_exists(instance_url, org_token, email: str = "", phone: str = ""
             in_clause = ", ".join(esc_vals) if esc_vals else "''"
             soql = (
                 "SELECT COUNT() FROM Shared_Document__c WHERE "
-                "Journal__r.Account__r.Phone_Formatted__c = '" + phone_norm.replace("'", "\\'") + "' "
-                "OR Journal__r.Account__r.Spouse_Phone__pc IN (" + in_clause + ")"
+                "(Journal__r.Account__r.Phone_Formatted__c = '" + phone_norm.replace("'", "\\'") + "' "
+                "OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+                "AND Journal__r.Account__r.Spouse_Phone__pc IN (" + in_clause + ")))"
             )
         else:
             e = (email or "").lower().replace("'", "\\'")
             soql = (
                 "SELECT COUNT() FROM Shared_Document__c WHERE "
-                "Journal__r.Account__r.PersonEmail = '" + e + "' "
-                "OR Journal__r.Account__r.Spouse_Email__pc = '" + e + "'"
+                "(Journal__r.Account__r.PersonEmail = '" + e + "' "
+                "OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+                "AND Journal__r.Account__r.Spouse_Email__pc = '" + e + "'))"
             )
         count = int(salesforce_query(instance_url, org_token, soql).get("totalSize", 0))
         return count > 0
@@ -425,7 +427,8 @@ def _find_journal_ids_by_email(instance_url, org_token, email: str):
         "SELECT Journal__c "
         "FROM Shared_Document__c "
         "WHERE Journal__r.Account__r.PersonEmail = '" + esc + "' "
-        "   OR Journal__r.Account__r.Spouse_Email__pc = '" + esc + "' "
+        "   OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+        "       AND Journal__r.Account__r.Spouse_Email__pc = '" + esc + "') "
         "GROUP BY Journal__c "
         "LIMIT 200"
     )
@@ -444,7 +447,8 @@ def _find_journal_ids_by_phone(instance_url, org_token, phone_norm: str):
         "SELECT Journal__c "
         "FROM Shared_Document__c "
         "WHERE Journal__r.Account__r.Phone_Formatted__c = '" + phone_norm.replace("'", "\\'") + "' "
-        "   OR Journal__r.Account__r.Spouse_Phone__pc IN (" + (in_clause or "''") + ") "
+        "   OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+        "       AND Journal__r.Account__r.Spouse_Phone__pc IN (" + (in_clause or "''") + ")) "
         "GROUP BY Journal__c "
         "LIMIT 200"
     )
@@ -693,7 +697,8 @@ def handle_identifier_list(event, event_json):
         where_clause = (
             "WHERE Is_Newest_Version__c = true AND ("
             "      Journal__r.Account__r.PersonEmail = '" + esc + "' "
-            "   OR Journal__r.Account__r.Spouse_Email__pc = '" + esc + "'"
+            "   OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+            "       AND Journal__r.Account__r.Spouse_Email__pc = '" + esc + "')"
             ")"
         )
     else:
@@ -703,7 +708,8 @@ def handle_identifier_list(event, event_json):
         where_clause = (
             "WHERE Is_Newest_Version__c = true AND ("
             "      Journal__r.Account__r.Phone_Formatted__c = '" + phone.replace("'", "\\'") + "' "
-            "   OR Journal__r.Account__r.Spouse_Phone__pc IN (" + in_clause + ")"
+            "   OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+            "       AND Journal__r.Account__r.Spouse_Phone__pc IN (" + in_clause + "))"
             ")"
         )
     
@@ -813,14 +819,16 @@ def handle_identifier_doc_url(event, event_json):
         safe_id = soql_escape(doc_id)
         if sess and sess.get("typ") == "email":
             soql = (
-                "SELECT Id, S3_Key__c, Journal__r.Account__r.PersonEmail, Journal__r.Account__r.Spouse_Email__pc, Status__c "
+                "SELECT Id, S3_Key__c, Journal__r.Account__r.PersonEmail, Journal__r.Account__r.Spouse_Email__pc, "
+                "       Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc, Status__c "
                 "FROM Shared_Document__c "
                 "WHERE Id = '" + safe_id + "' "
                 "LIMIT 1"
             )
         else:
             soql = (
-                "SELECT Id, S3_Key__c, Journal__r.Account__r.Phone_Formatted__c, Journal__r.Account__r.Spouse_Phone__pc, Status__c "
+                "SELECT Id, S3_Key__c, Journal__r.Account__r.Phone_Formatted__c, Journal__r.Account__r.Spouse_Phone__pc, "
+                "       Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc, Status__c "
                 "FROM Shared_Document__c "
                 "WHERE Id = '" + safe_id + "' "
                 "LIMIT 1"
@@ -832,19 +840,35 @@ def handle_identifier_doc_url(event, event_json):
 
         # If we have a session, enforce ownership
         if sess:
+            account = (doc.get("Journal__r") or {}).get("Account__r", {})
+            is_spouse_recipient = account.get("Is_Spouse_Shared_Document_Recipient__pc", False)
+            
             if sess.get("typ") == "email":
                 email = (sess.get("sub") or "").lower().strip()
-                emails = [(doc.get("Journal__r") or {}).get("Account__r", {}).get("PersonEmail", ""),
-                          (doc.get("Journal__r") or {}).get("Account__r", {}).get("Spouse_Email__pc", "")]
-                emails = [e.lower().strip() for e in emails if e]
-                if email not in emails:
+                primary_email = (account.get("PersonEmail") or "").lower().strip()
+                spouse_email = (account.get("Spouse_Email__pc") or "").lower().strip()
+                
+                # Allow if primary email OR (spouse recipient enabled AND spouse email)
+                if email == primary_email:
+                    pass  # OK
+                elif is_spouse_recipient and email == spouse_email:
+                    pass  # OK
+                else:
                     return resp(event, 403, {"error": "Forbidden"})
+                    
             elif sess.get("typ") == "phone":
                 phone = normalize_phone_basic(sess.get("sub") or "")
-                account_p = (doc.get("Journal__r") or {}).get("Account__r", {})
-                p1 = normalize_phone_basic(account_p.get("Phone_Formatted__c") or "")
-                p2 = account_p.get("Spouse_Phone__pc") or ""
-                ok = (phone == p1) or (p2 and phone in phone_variants_for_match(normalize_phone_basic(p2)))
+                p1 = normalize_phone_basic(account.get("Phone_Formatted__c") or "")
+                p2 = account.get("Spouse_Phone__pc") or ""
+                
+                # Allow if primary phone OR (spouse recipient enabled AND spouse phone)
+                if phone == p1:
+                    ok = True
+                elif is_spouse_recipient and p2:
+                    ok = phone in phone_variants_for_match(normalize_phone_basic(p2))
+                else:
+                    ok = False
+                    
                 if not ok:
                     return resp(event, 403, {"error": "Forbidden"})
 
@@ -1059,7 +1083,8 @@ def handle_identifier_approve(event, data):
                 safe_id = soql_escape(doc_id)
                 if sess.get("typ") == "email":
                     soql = (
-                        "SELECT Id, Journal__r.Account__r.PersonEmail, Journal__r.Account__r.Spouse_Email__pc "
+                        "SELECT Id, Journal__r.Account__r.PersonEmail, Journal__r.Account__r.Spouse_Email__pc, "
+                        "       Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc "
                         "FROM Shared_Document__c "
                         "WHERE Id = '" + safe_id + "' LIMIT 1"
                     )
@@ -1067,14 +1092,24 @@ def handle_identifier_approve(event, data):
                     if not recs: 
                         skipped += 1; continue
                     row = recs[0]
+                    acc = (row.get("Journal__r") or {}).get("Account__r", {})
                     email = (sess.get("sub") or "").lower().strip()
-                    pe = ((row.get("Journal__r") or {}).get("Account__r", {}).get("PersonEmail") or "").lower().strip()
-                    se = ((row.get("Journal__r") or {}).get("Account__r", {}).get("Spouse_Email__pc") or "").lower().strip()
-                    if email not in (pe, se):
+                    pe = (acc.get("PersonEmail") or "").lower().strip()
+                    se = (acc.get("Spouse_Email__pc") or "").lower().strip()
+                    is_spouse_recipient = acc.get("Is_Spouse_Shared_Document_Recipient__pc", False)
+                    
+                    # Allow if primary email OR (spouse recipient enabled AND spouse email)
+                    if email == pe:
+                        pass  # OK
+                    elif is_spouse_recipient and email == se:
+                        pass  # OK
+                    else:
                         skipped += 1; continue
+                        
                 else:
                     soql = (
-                        "SELECT Id, Journal__r.Account__r.Phone_Formatted__c, Journal__r.Account__r.Spouse_Phone__pc "
+                        "SELECT Id, Journal__r.Account__r.Phone_Formatted__c, Journal__r.Account__r.Spouse_Phone__pc, "
+                        "       Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc "
                         "FROM Shared_Document__c "
                         "WHERE Id = '" + safe_id + "' LIMIT 1"
                     )
@@ -1082,11 +1117,20 @@ def handle_identifier_approve(event, data):
                     if not recs: 
                         skipped += 1; continue
                     row = recs[0]
+                    acc = (row.get("Journal__r") or {}).get("Account__r", {})
                     phone = normalize_phone_basic(sess.get("sub") or "")
-                    acc   = (row.get("Journal__r") or {}).get("Account__r", {})
                     p1    = normalize_phone_basic(acc.get("Phone_Formatted__c") or "")
                     p2raw = acc.get("Spouse_Phone__pc") or ""
-                    ok = (phone == p1) or (p2raw and phone in phone_variants_for_match(normalize_phone_basic(p2raw)))
+                    is_spouse_recipient = acc.get("Is_Spouse_Shared_Document_Recipient__pc", False)
+                    
+                    # Allow if primary phone OR (spouse recipient enabled AND spouse phone)
+                    if phone == p1:
+                        ok = True
+                    elif is_spouse_recipient and p2raw:
+                        ok = phone in phone_variants_for_match(normalize_phone_basic(p2raw))
+                    else:
+                        ok = False
+                        
                     if not ok:
                         skipped += 1; continue
 
@@ -1424,8 +1468,9 @@ def handle_identifier_search(event, event_json):
             esc = email.replace("'", "\\'")
             soql = (
                 "SELECT COUNT() FROM Shared_Document__c WHERE "
-                "Journal__r.Account__r.PersonEmail = '" + esc + "' "
-                "OR Journal__r.Account__r.Spouse_Email__pc = '" + esc + "'"
+                "(Journal__r.Account__r.PersonEmail = '" + esc + "' "
+                "OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+                "AND Journal__r.Account__r.Spouse_Email__pc = '" + esc + "'))"
             )
             count = salesforce_query(instance_url, org_token, soql).get("totalSize", 0)
             return resp(event, 200, {"ok": True, "identifierType": "email", "identifier": email, "matchCount": count})
@@ -1437,8 +1482,9 @@ def handle_identifier_search(event, event_json):
             in_clause = ", ".join(esc_vals) if esc_vals else "''"
             soql = (
                 "SELECT COUNT() FROM Shared_Document__c WHERE "
-                "Journal__r.Account__r.Phone_Formatted__c = '" + phone.replace("'", "\\'") + "' "
-                "OR Journal__r.Account__r.Spouse_Phone__pc IN (" + in_clause + ")"
+                "(Journal__r.Account__r.Phone_Formatted__c = '" + phone.replace("'", "\\'") + "' "
+                "OR (Journal__r.Account__r.Is_Spouse_Shared_Document_Recipient__pc = true "
+                "AND Journal__r.Account__r.Spouse_Phone__pc IN (" + in_clause + ")))"
             )
             count = salesforce_query(instance_url, org_token, soql).get("totalSize", 0)
             return resp(event, 200, {"ok": True, "identifierType": "phone", "identifier": phone, "matchCount": count})
