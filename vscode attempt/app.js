@@ -81,6 +81,62 @@ let docs = [], active = 0, completionShown = false, currentPresigned = '';
 let shouldStartTour = false, tourActive = false;
 
 /* ----------------------------------------------------------
+   Focus helpers (exclusive + visibility-aware)
+   - Ensures only the latest requested focus "wins"
+   - Waits until element is visible (not in a .hidden container)
+   - Uses rAF + small retries for iOS Safari after class toggles
+---------------------------------------------------------- */
+const focusManager = (() => {
+  let token = 0;
+  let timer = null;
+
+  function isVisible(el){
+    if (!el || el.disabled) return false;
+    // Hidden via CSS display:none or visibility:hidden
+    const cs = window.getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+    // Hidden via ancestor .hidden (display:none !important)
+    let p = el;
+    while (p) {
+      if (p.classList && p.classList.contains('hidden')) return false;
+      p = p.parentElement;
+    }
+    // If inside a display:none parent, offsetParent will be null (except position:fixed)
+    if (!el.offsetParent && cs.position !== 'fixed') return false;
+    return true;
+  }
+
+  function focusNow(el){
+    try { el.focus({ preventScroll: true }); }
+    catch(_) { try { el.focus(); } catch(__){} }
+  }
+
+  function schedule(target, { delay = 0, tries = 8, interval = 40 } = {}){
+    const el = typeof target === 'string' ? $(target) : target;
+    if (!el) return;
+
+    token++;
+    const myToken = token;
+    if (timer) { clearTimeout(timer); timer = null; }
+
+    const attempt = (left) => {
+      if (myToken !== token) return; // superseded
+      if (isVisible(el)) { focusNow(el); return; }
+      if (left <= 0) return;
+      timer = setTimeout(()=>attempt(left-1), interval);
+    };
+
+    const start = () => attempt(tries);
+    if (delay > 0) timer = setTimeout(start, delay);
+    else if (typeof requestAnimationFrame === 'function') requestAnimationFrame(()=> setTimeout(start, 0));
+    else start();
+  }
+
+  return { schedule };
+})();
+const autoFocus = (idOrEl, opts) => focusManager.schedule(idOrEl, opts);
+
+/* ----------------------------------------------------------
    i18n helpers & dynamic substitutions
 ---------------------------------------------------------- */
 function _t_safe(k){ try{ return window._t ? window._t(k) : (k||''); } catch(_){ return k||''; } }
@@ -163,7 +219,11 @@ function enhancePostApprovalAccordions(){
    Sidebar toggle (unchanged)
 ---------------------------------------------------------- */
 const menuBtn = $('menuBtn');
-if (menuBtn) menuBtn.onclick = () => $('sidebar').classList.toggle('open');
+if (menuBtn) {
+  menuBtn.onclick = () => $('sidebar').classList.toggle('open');
+  // Hide menu button initially (until portal UI loads)
+  menuBtn.style.display = 'none';
+}
 function maybeCloseSidebar(){ if (window.innerWidth <= 1024) $('sidebar')?.classList.remove('open'); }
 
 /* ----------------------------------------------------------
@@ -289,6 +349,8 @@ function showStep(which){
     show(verifyStep); 
     if (subtitle) hide(subtitle);
     if (idChooser) hide(idChooser);
+    // Auto-focus OTP input when shown (visibility-aware, iOS-friendly)
+    autoFocus('otp', { delay: 60, tries: 8, interval: 40 });
   } else { 
     show(idStep); 
     hide(verifyStep); 
@@ -312,7 +374,9 @@ function startOver(){
   identifierValue = ''; sessionToken = '';
   setMsg(''); setIdMsg('');
   showStep('auth');
-  if (identifierType === 'phone') $('phoneLocal')?.focus?.(); else $('emailInput')?.focus?.();
+  // Focus correct field after returning to identifier step
+  if (identifierType === 'phone') autoFocus('phoneLocal', { delay: 60 });
+  else                            autoFocus('emailInput', { delay: 60 });
 }
 
 async function requestOtpIdentifier(){
@@ -364,8 +428,8 @@ async function requestOtpIdentifier(){
   // Go to Verify
   setIdMsg(_t_safe('OTP_SENT'));
   setVerifySub();
-  showStep('verify');
-  $('otp')?.focus?.();
+  showStep('verify');           // this schedules focus on #otp
+  // (Removed redundant immediate otp.focus() to avoid race conditions)
 }
 
 async function verifyOtpIdentifier(code){
@@ -544,14 +608,9 @@ function renderLists(){
       div.className='doc-item'+(doc.status==='Approved'?' approved':'')+(doc===docs[active]?' active':'');
       const title=document.createElement('div');
       title.className='doc-title';
-      title.textContent=getDocName(doc);
+      // Show documentType instead of file name
+      title.textContent = doc.documentType || getDocName(doc);
       div.appendChild(title);
-      if (doc.documentType){
-        const badge=document.createElement('span');
-        badge.className='doc-type-badge';
-        badge.textContent=doc.documentType;
-        div.appendChild(badge);
-      }
       div.onclick=()=>{
         maybeCloseSidebar();
         active=docs.indexOf(doc);
@@ -593,15 +652,16 @@ async function loadCurrent(){
   if ($('headerText')) $('headerText').textContent = allOk ? _t_safe('HEADER_ALL_OK') : _t_safe('HEADER_PENDING');
   if ($('viewCompletionBtn')) $('viewCompletionBtn').classList.toggle('hidden', !allOk);
 
-  const name = getDocName(doc);
+  // Use documentType instead of file name for approve button
+  const displayName = doc.documentType || getDocName(doc);
   show($('approveRow'));
   if ($('approveBtn') && $('approveMsg')){
     if (curOk){
-      $('approveBtn').textContent = `${name} er godkendt`;
+      $('approveBtn').textContent = `${displayName} er godkendt`;
       $('approveBtn').disabled = true;
       $('approveMsg').textContent = '';
     }else{
-      $('approveBtn').textContent = `${_t_safe('APPROVE_PREFIX')} ${name}`;
+      $('approveBtn').textContent = `${_t_safe('APPROVE_PREFIX')} ${displayName}`;
       $('approveBtn').disabled = false;
       $('approveMsg').textContent = '';
     }
@@ -966,7 +1026,7 @@ function showJournalSelection() {
           return `
             <button 
               onclick="selectJournal('${j.id}')" 
-              style="padding: 20px; background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s; font-family: inherit;"
+              style="padding: 20px; background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: 8px; cursor: pointer; text-align: left; transition: all 2:0s; font-family: inherit;"
               onmouseover="this.style.borderColor='var(--accent, #007bff)'; this.style.background='${allApproved ? '#f0fdf4' : '#f8f9fa'}';"
               onmouseout="this.style.borderColor='${borderColor}'; this.style.background='${bgColor}';"
             >
@@ -1045,6 +1105,9 @@ function enterPortalUI(){
   show($('sidebar'));
   show($('viewerCard'));
   show($('sidebarActions'));
+  
+  // Show menu button now that sidebar is active
+  if (menuBtn) menuBtn.style.display = '';
   
   // Chat always visible (will load per-document messages)
   show($('chatFab'));
@@ -1126,7 +1189,13 @@ if ($('sendCodeBtn')) $('sendCodeBtn').onclick = async ()=>{
       b.type='button';
       b.className='phone-option';
       b.textContent = `${c.name} (+${c.dial})`;
-      b.onclick = ()=>{ phoneIso=c.iso; setPhoneButton(); phoneDropdown.classList.add('hidden'); phoneLocal?.focus(); };
+      b.onclick = ()=>{
+        phoneIso=c.iso;
+        setPhoneButton();
+        phoneDropdown.classList.add('hidden');
+        // refocus phone input after selection (only if visible later)
+        autoFocus('phoneLocal', { delay: 0 });
+      };
       phoneDropdown.appendChild(b);
     });
   }
@@ -1142,9 +1211,15 @@ if ($('sendCodeBtn')) $('sendCodeBtn').onclick = async ()=>{
     identifierType = t;
     if (usePhoneBtn) usePhoneBtn.classList.toggle('active', t==='phone');
     if (useEmailBtn) useEmailBtn.classList.toggle('active', t==='email');
-    if (t==='phone'){ show(phoneGroup); hide(emailGroup); phoneLocal?.focus(); }
-    else            { show(emailGroup); hide(phoneGroup); $('emailInput')?.focus(); }
+    if (t==='phone'){ show(phoneGroup); hide(emailGroup); }
+    else            { show(emailGroup); hide(phoneGroup); }
     setIdMsg('');
+    // Only focus if identifier step is currently visible (avoid stealing focus from OTP/journal screens)
+    const idStepVisible = !$('idStep')?.classList.contains('hidden');
+    if (idStepVisible){
+      if (t==='phone') autoFocus('phoneLocal', { delay: 30 });
+      else             autoFocus('emailInput', { delay: 30 });
+    }
   }
   if (usePhoneBtn) usePhoneBtn.onclick = ()=> setType('phone');
   if (useEmailBtn) useEmailBtn.onclick = ()=> setType('email');
@@ -1161,6 +1236,14 @@ if ($('sendCodeBtn')) $('sendCodeBtn').onclick = async ()=>{
 
   if (MODE === 'identifier'){ showStep('auth'); } else { showStep('verify'); }
   setType('phone');
+  
+  // Auto-focus the initial input field on page load (identifier mode only)
+  setTimeout(() => {
+    if (MODE === 'identifier') {
+      if (identifierType === 'phone') autoFocus('phoneLocal', { delay: 0 });
+      else                            autoFocus('emailInput', { delay: 0 });
+    }
+  }, 100);
 
   const so = $('startOverBtn');
   if (so) so.onclick = startOver;
@@ -1170,4 +1253,3 @@ if ($('approveBtn'))    $('approveBtn').onclick   =()=>tryApprove([docs[active].
 if ($('approveAllBtn')) $('approveAllBtn').onclick=()=>tryApprove(docs.filter(d=>d.status!=='Approved').map(d=>d.id));
 
 if ($('tourRelaunchBtn')) $('tourRelaunchBtn').onclick = ()=>{ shouldStartTour = false; if(typeof startTour==='function') startTour(); };
-

@@ -63,6 +63,7 @@
       INTRO_BTN     : 'Se 60-sekunders intro-video',
       DOWNLOAD_BTN  : 'Download PDF',
       PRINT_BTN     : 'Udskriv PDF',
+      PDF_VIEWER_TIP: 'Har du svært ved at se PDF\'en? Tryk på "Download PDF" for at åbne den i en separat PDF-læser.',
 
       /* modal-knapper & tekster */
       MODAL_CANCEL      : 'Annullér',
@@ -326,6 +327,7 @@
       INTRO_BTN     : 'Se 60-sekunders introduktionsvideo',
       DOWNLOAD_BTN  : 'Ladda ner PDF',
       PRINT_BTN     : 'Skriv ut PDF',
+      PDF_VIEWER_TIP: 'Har du svårt att se PDF:en? Klicka på "Ladda ner PDF" för att öppna den i en separat PDF-läsare.',
 
       /* modal-knappar & texter */
       MODAL_CANCEL      : 'Avbryt',
@@ -587,6 +589,7 @@
       INTRO_BTN     : 'Watch 60-second intro video',
       DOWNLOAD_BTN  : 'Download PDF',
       PRINT_BTN     : 'Print PDF',
+      PDF_VIEWER_TIP: 'Having trouble viewing the PDF? Click "Download PDF" to open it in a separate PDF viewer.',
 
       /* modal buttons & text */
       MODAL_CANCEL      : 'Cancel',
