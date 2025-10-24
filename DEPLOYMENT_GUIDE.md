@@ -4,6 +4,20 @@
 
 ---
 
+## ✅ Deployment Status (October 24, 2025)
+
+| Component | Status | Deploy ID | Notes |
+|-----------|--------|-----------|-------|
+| **Apex Classes** | ✅ DEPLOYED | 0AfW5000001ZvAvKAK | DocShareService with Sort_Order__c |
+| **LWC** | ✅ DEPLOYED | 0AfW5000001ZvAvKAK | journalDocConsole with hardcoded URLs |
+| **Lambda** | ⏳ PENDING | - | Not yet deployed |
+| **Frontend SPA** | ⏳ PENDING | - | Not yet deployed |
+
+**Last Deployment**: October 24, 2025 at ~15:30  
+**Deployed By**: Mathias  
+
+---
+
 ## Prerequisites
 
 ✅ Backup completed (see ROLLBACK_GUIDE.md)  

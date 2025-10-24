@@ -46,7 +46,7 @@
       lang   : 'da',
       logo   : '/assets/dk/logo.png',
       favicon: '/assets/dk/favicon.png',
-      video  : '',
+      video  : 'https://www.youtube.com/embed/UsFmArdrO8s?rel=0',
       showVideo: true,
       name   : 'Din Familiejurist',
       title  : 'DFJ Dokumentgodkendelse',

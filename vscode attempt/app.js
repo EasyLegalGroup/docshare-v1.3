@@ -21,7 +21,7 @@ const ID_REQUEST_OTP = `${API}/identifier/request-otp`,
       ID_APPROVE     = `${API}/identifier/approve`;
 
 /* Default intro video */
-const DEFAULT_VIDEO_URL = 'https://www.youtube.com/embed/a5DPLsmaltE?rel=0';
+const DEFAULT_VIDEO_URL = 'https://www.youtube.com/embed/UsFmArdrO8s?rel=0';
 function ytUrlWithSafeParams(url){
   try{
     const u = new URL(url);

@@ -20,10 +20,16 @@ import SHARED_DOC_OBJECT from '@salesforce/schema/Shared_Document__c';
 const FIELDS = [JOURNAL_ID, NAME_FIELD, EXT_ID_FIELD, TOK_FIELD];
 
 /* ---------- Constants ---------- */
-// Get API base per-environment from a Custom Label so we never hardcode
-import DOCSHARE_API_BASE from '@salesforce/label/c.DocShare_ApiBase';
+// Environment-aware API configuration
+// Production org detection via hostname
+const IS_PROD = window.location.hostname.includes('dinfamiliejurist--dfj') || 
+                window.location.hostname.includes('dinfamiliejurist.my.salesforce') ||
+                window.location.hostname.includes('dfj.lightning.force.com');
 
-const API_BASE = DOCSHARE_API_BASE; 
+const PROD_API_URL = 'https://ysu7eo2haj.execute-api.eu-north-1.amazonaws.com/prod';
+const TEST_API_URL = 'https://21tpssexjd.execute-api.eu-north-1.amazonaws.com';
+const API_BASE = IS_PROD ? PROD_API_URL : TEST_API_URL;
+
 const UPLOAD_START_URL = `${API_BASE}/upload-start`;
 
 /** Unicode-ish letter class (for word-ish boundaries when matching names) */
