@@ -1039,9 +1039,176 @@ window.addEventListener('scroll', positionChatLabel, { passive: true });
 // Note: FAB is fixed; scroll listener only handles mobile UI bars resizing.
 
 /* ----------------------------------------------------------
-   In-app tour (your existing code can stay here)
+   In-app guidance tour
+   (Chat opens at start, stays open during tour, closes when finished)
+   - Added FAQ step (3rd) — but only if SHOW_FAQ = true
+   - Styled buttons: Done = green-ish, Close = red-ish
 ---------------------------------------------------------- */
-// ...
+const tour = {
+  idx: 0,
+  state: '',
+  steps: (function buildSteps(){
+    const arr = [
+      { key:'SIDEBAR',   target:'#sidebar',   textKey:'TOUR_STEP_SIDEBAR', advanceOn:'docClick' }, // 1
+      { key:'PDF',       target:'#pdf',       textKey:'TOUR_STEP_PDF' }                            // 2
+    ];
+    if (SHOW_INTRO) {  // Use SHOW_INTRO instead of SHOW_FAQ for FAQ visibility
+      const faqBtn = $('faqBtn');
+      if (faqBtn && !faqBtn.classList.contains('hidden')) {
+        arr.push({ key:'FAQ', target:'#faqBtn', textKey:'TOUR_STEP_FAQ' });  // 3 (conditional)
+      }
+    }
+    arr.push(
+      // 4
+      { key:'CHAT',      target:'#chatPanel', textKey:'TOUR_STEP_CHAT', openChat:true, leftOf:true, nudgeX:-100 },
+      // 5
+      { key:'APPROVE',   target:'#approveBtn', textKey:'TOUR_STEP_APPROVE', showApprove:true, leftOf:true, nudgeY:-120 },
+      // 6
+      { key:'DOWNLOAD',  target:['#printBtn','#downloadBtn'], textKey:'TOUR_STEP_DOWNLOAD', below:true, wide:true }
+    );
+    return arr;
+  })(),
+  start(){
+    tourActive = true;
+
+    // Open chat at the very start (tour-driven, not user)
+    openChatPanel('tour');
+
+    // Style buttons: Done (green-ish), Close (red-ish)
+    (function styleGuideButtons(){
+      const done  = $('tourDoneBtn');
+      const close = $('tourCloseBtn');
+      if (done){
+        // make it look like a green primary
+        done.classList.remove('ghost');
+        done.classList.add('primary');
+        done.style.background = 'var(--ok)';
+        done.style.border     = '1px solid var(--ok)';
+        done.style.color      = '#fff';
+      }
+      if (close){
+        // red-ish ghost
+        close.classList.remove('primary');
+        close.classList.add('ghost');
+        close.style.background = '#fee2e2';
+        close.style.border     = '1px solid #fecaca';
+        close.style.color      = '#991b1b';
+      }
+    })();
+
+    show($('tourDim')); show($('tourRing')); show($('tourTip'));
+    this.idx = 0;
+    this.showStep();
+  },
+  end(){
+    tourActive = false;
+    this.state = '';
+    hide($('tourDim')); hide($('tourRing')); hide($('tourTip'));
+
+    // Close chat when the tour ends
+    closeChatPanel();
+
+    // restore approve row to correct state
+    loadCurrent();
+  },
+  showStep(){
+    const s = this.steps[this.idx];
+    if(!s) return this.end();
+
+    // Keep chat open if step requests it (idempotent)
+    if(s.openChat){ openChatPanel('tour'); }
+
+    // ensure Approve row shows correctly when guide highlights it
+    if (s.showApprove){
+      const doc = docs[active];
+      const name = (doc.name||doc.fileName||doc.filename||doc.key||'Document');
+      show($('approveRow'));
+      if (doc.status === 'Approved'){
+        $('approveBtn').textContent = `${name} er godkendt`;
+        $('approveBtn').disabled = true;
+      }else{
+        $('approveBtn').textContent = `${_t('APPROVE_PREFIX')} ${name}`;
+        $('approveBtn').disabled = false;
+      }
+    }
+
+    const targets = Array.isArray(s.target) ? s.target : [s.target];
+    const els = targets.map(t => document.querySelector(t)).filter(Boolean);
+    if(!els.length){ this.next(); return; }
+
+    // Aggregate a rectangle that covers all targets
+    const pad = 8;
+    const rects = els.map(el => el.getBoundingClientRect());
+    const agg = rects.reduce((a,r)=>({
+      left: Math.min(a.left, r.left),
+      top: Math.min(a.top, r.top),
+      right: Math.max(a.right, r.right),
+      bottom: Math.max(a.bottom, r.bottom)
+    }), {left:Infinity, top:Infinity, right:-Infinity, bottom:-Infinity});
+    const r = {
+      left: agg.left,
+      top: agg.top,
+      right: agg.right,
+      bottom: agg.bottom,
+      width: agg.right - agg.left,
+      height: agg.bottom - agg.top
+    };
+
+    // position ring
+    const ring = $('tourRing');
+    ring.style.left   = (r.left - pad) + 'px';
+    ring.style.top    = (r.top  - pad) + 'px';
+    ring.style.width  = (r.width  + pad*2) + 'px';
+    ring.style.height = (r.height + pad*2) + 'px';
+
+    // place tip
+    const tip = $('tourTip');
+    const tipW = s.wide ? 420 : 340;
+    const tipText = s.text || _t(s.textKey); // allow literal text for new step
+    $('tourTipText').textContent = tipText;
+    $('tourCounter').textContent = `${this.idx+1}/${this.steps.length}`;
+    let left = Math.min(window.innerWidth - tipW - 16, r.left + r.width + 12);
+    let top  = Math.max(16, r.top);
+
+    // left-of (used for CHAT and APPROVE so it doesn't overlap)
+    if (s.leftOf){
+      left = Math.max(16, r.left - tipW - 12);
+      top  = Math.max(16, r.top);
+    }
+    // below target (for Print/Download buttons to avoid overlap)
+    if (s.below){
+      left = Math.min(window.innerWidth - tipW - 16, Math.max(16, r.left + (r.width - tipW)/2));
+      top  = r.bottom + 12;
+    }
+
+    // Optional nudges (fine-grained placement)
+    if (typeof s.nudgeX === 'number') left += s.nudgeX;
+    if (typeof s.nudgeY === 'number') top  += s.nudgeY;
+
+    tip.style.left = left + 'px';
+    tip.style.top  = top  + 'px';
+
+    // set state for special advancing
+    this.state = (s.advanceOn === 'docClick') ? 'waitForDocClick' : '';
+
+    // buttons visibility
+    $('tourBackBtn').style.display  = (this.idx > 0) ? 'inline-block' : 'none';
+    $('tourNextBtn').style.display  = (this.idx < this.steps.length - 1) ? 'inline-block' : 'none';
+    $('tourDoneBtn').style.display  = (this.idx === this.steps.length - 1) ? 'inline-block' : 'none';
+  },
+  next(){ this.idx++; if(this.idx >= this.steps.length) return this.end(); this.showStep(); },
+  prev(){ if (this.idx === 0) return; this.idx--; this.showStep(); }
+};
+
+$('tourNextBtn').onclick  = ()=>tour.next();
+$('tourBackBtn').onclick  = ()=>tour.prev();
+$('tourDoneBtn').onclick  = ()=>tour.end();
+$('tourCloseBtn').onclick = ()=>tour.end();
+// Allow closing the guide by clicking the dim background or pressing ESC
+$('tourDim').onclick = ()=>tour.end();
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && tourActive) tour.end(); });
+
+function startTour(){ tour.start(); }
 
 /* ----------------------------------------------------------
    Journal Selection (Bridge Page)
