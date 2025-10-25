@@ -1,8 +1,24 @@
 /* ------------------------------------------------------------------
+   Redirect old journal links to identifier mode
+------------------------------------------------------------------ */
+(function redirectOldLinks(){
+  const qs = new URLSearchParams(location.search);
+  const hasE = qs.has('e');
+  const hasT = qs.has('t');
+  
+  // If old journal parameters exist, redirect to clean URL
+  if (hasE || hasT) {
+    const cleanUrl = location.origin + location.pathname;
+    window.location.replace(cleanUrl);
+    return; // Stop execution
+  }
+})();
+
+/* ------------------------------------------------------------------
    Konfiguration & helpers
 ------------------------------------------------------------------ */
 const API  = new URLSearchParams(location.search).get('api')
-          || 'https://21tpssexjd.execute-api.eu-north-1.amazonaws.com';
+          || 'https://ysu7eo2haj.execute-api.eu-north-1.amazonaws.com/prod';
 
 // Journal endpoints (unchanged)
 const OTP_VERIFY = `${API}/otp-verify`,
