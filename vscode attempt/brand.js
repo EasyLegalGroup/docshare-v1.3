@@ -49,7 +49,7 @@
       video  : 'https://www.youtube.com/embed/UsFmArdrO8s?rel=0',
       showVideo: true,
       name   : 'Din Familiejurist',
-      title  : 'DFJ Dokumentgodkendelse',
+      title  : 'Din Familiejurist - Gennemgå og godkend dine dokumenter',
       showFAQ: true,              // DK shows FAQ
       countryIso: 'DK'            // (NEW) used for phone defaults/theme
     },
@@ -61,7 +61,7 @@
       video  : '',
       showVideo: false,
       name   : 'Din Familjejurist',
-      title  : 'Din Familjejurist – Dokument',
+      title  : 'Din Familjejurist – Granska och godkänn dina dokument',
       showFAQ: false,             // (NEW) SE hides FAQ by default
       countryIso: 'SE'            // (NEW)
     },
@@ -72,8 +72,8 @@
       favicon: '/assets/ie/favicon.png',
       video  : '',
       showVideo: false,
-      name   : "Here's Law",
-      title  : "Here's Law – Document Approval",
+      name   : "Heres Law",
+      title  : "Heres Law – Review & Approve your documents",
       showFAQ: true,              // IE shows FAQ
       countryIso: 'IE'            // (NEW)
     }
