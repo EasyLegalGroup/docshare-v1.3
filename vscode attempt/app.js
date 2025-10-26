@@ -866,7 +866,9 @@ function renderChat(scrollToMsgId = null){
     if (isAI || isThinking) row.classList.add('ai-bubble');
     row.innerHTML=m.body;
     
-    // Add AI feedback buttons (only for AI messages not yet marked)
+    wrap.appendChild(row);
+    
+    // Add AI feedback buttons OUTSIDE the bubble (underneath)
     if (isAI && !isThinking && !m.aiHelpful && !m.aiEscalated && !m.AI_Helpful__c && !m.AI_Escalated__c) {
       const feedback = document.createElement('div');
       feedback.className = 'ai-feedback';
@@ -884,7 +886,7 @@ function renderChat(scrollToMsgId = null){
           ${_t_safe('AI_ESCALATE_BTN')}
         </button>
       `;
-      row.appendChild(feedback);
+      wrap.appendChild(feedback);
     } else if (m.aiHelpful || m.AI_Helpful__c) {
       const thanks = document.createElement('div');
       thanks.className = 'ai-feedback-done';
@@ -894,7 +896,7 @@ function renderChat(scrollToMsgId = null){
         </svg>
         ${_t_safe('AI_FEEDBACK_THANKS')}
       `;
-      row.appendChild(thanks);
+      wrap.appendChild(thanks);
     } else if (m.aiEscalated || m.AI_Escalated__c) {
       const escalated = document.createElement('div');
       escalated.className = 'ai-feedback-done';
@@ -904,10 +906,10 @@ function renderChat(scrollToMsgId = null){
         </svg>
         ${_t_safe('AI_ESCALATED')}
       `;
-      row.appendChild(escalated);
+      wrap.appendChild(escalated);
     }
     
-    // Add "Ask AI" button for human mode messages
+    // Add "Ask AI" button for human mode messages OUTSIDE the bubble (underneath)
     // Show when: user's own message (inbound=true, right side), in human mode, not AI, not thinking, not system, not already asked
     const isUserMessage = isInbound && !isAI && !isThinking && m.messageType !== 'System';
     if (isUserMessage && chatMode === 'human' && !m.askedAI) {
@@ -921,10 +923,10 @@ function renderChat(scrollToMsgId = null){
           Spørg AI?
         </button>
       `;
-      row.appendChild(askAI);
+      wrap.appendChild(askAI);
     }
     
-    wrap.appendChild(row); box.appendChild(ts); box.appendChild(wrap);
+    box.appendChild(ts); box.appendChild(wrap);
   });
   
   // Smart scrolling
@@ -1170,6 +1172,17 @@ async function handleAIFeedback(messageId, action) {
       } else if (action === 'escalate') {
         msg.aiEscalated = true;
         
+        // Switch to Human mode
+        chatMode = 'human';
+        if ($('modeHuman')) $('modeHuman').classList.add('active');
+        if ($('modeAI')) $('modeAI').classList.remove('active');
+        
+        // Update header
+        const header = $('chatHeader');
+        if (header) {
+          header.textContent = _t_safe('CHAT_HEADER');
+        }
+        
         // Add system message about escalation
         chatCache.push({
           id: 'system-' + Date.now(),
@@ -1212,6 +1225,17 @@ async function askAIAboutMessage(messageId, messageBody) {
     const msg = chatCache.find(m => m.id === messageId);
     if (msg) {
       msg.askedAI = true;
+    }
+    
+    // Switch to AI mode
+    chatMode = 'ai';
+    if ($('modeAI')) $('modeAI').classList.add('active');
+    if ($('modeHuman')) $('modeHuman').classList.remove('active');
+    
+    // Update header
+    const header = $('chatHeader');
+    if (header) {
+      header.textContent = _t_safe('CHAT_HEADER_AI');
     }
     
     // Check if we have an active document
@@ -1261,9 +1285,11 @@ async function askAIAboutMessage(messageId, messageBody) {
     
     const j = await r.json().catch(() => ({}));
     
-    // Remove thinking indicator
-    let newCache = chatCache.filter(m => !m.isThinking);
-    chatCache = newCache;
+    // Remove thinking indicator (modify in place since chatCache is const)
+    const thinkingIdx = chatCache.findIndex(m => m.isThinking);
+    if (thinkingIdx !== -1) {
+      chatCache.splice(thinkingIdx, 1);
+    }
     
     if (!r.ok) {
       console.error('Ask AI failed:', j.error || 'Request failed');
@@ -1297,8 +1323,10 @@ async function askAIAboutMessage(messageId, messageBody) {
     setTimeout(() => fetchChat(), 500);
   } catch (e) {
     console.error('Ask AI error:', e);
-    let newCache = chatCache.filter(m => !m.isThinking);
-    chatCache = newCache;
+    const thinkingIdx = chatCache.findIndex(m => m.isThinking);
+    if (thinkingIdx !== -1) {
+      chatCache.splice(thinkingIdx, 1);
+    }
     chatCache.push({
       id: 'error-' + Date.now(),
       body: `<em style="color:#dc2626;">Der opstod en fejl. Prøv igen.</em>`,
