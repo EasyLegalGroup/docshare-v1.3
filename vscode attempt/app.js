@@ -18,7 +18,7 @@
    Konfiguration & helpers
 ------------------------------------------------------------------ */
 const API  = new URLSearchParams(location.search).get('api')
-          || 'https://ysu7eo2haj.execute-api.eu-north-1.amazonaws.com/prod';
+          || 'https://21tpssexjd.execute-api.eu-north-1.amazonaws.com';
 
 // Journal endpoints (unchanged)
 const OTP_VERIFY = `${API}/otp-verify`,
@@ -34,7 +34,8 @@ const ID_REQUEST_OTP = `${API}/identifier/request-otp`,
       ID_VERIFY_OTP  = `${API}/identifier/verify-otp`,
       ID_LIST        = `${API}/identifier/list`,
       ID_DOC_URL     = `${API}/identifier/doc-url`,
-      ID_APPROVE     = `${API}/identifier/approve`;
+      ID_APPROVE     = `${API}/identifier/approve`,
+      ID_CHAT_ASK    = `${API}/identifier/chat/ask`;  // AI-powered Q&A
 
 /* Default intro video */
 const DEFAULT_VIDEO_URL = 'https://www.youtube.com/embed/UsFmArdrO8s?rel=0';
@@ -108,8 +109,7 @@ function handleSessionExpired(){
   // Reset to OTP screen
   hide($('sidebar'));
   hide($('viewerCard'));
-  hide($('chatFab'));
-  hide($('chatLabel'));
+  hide($('chatPillBtn'));
   show($('otpCard'));
   
   // Show appropriate step based on mode
@@ -836,7 +836,7 @@ async function tryApprove(ids){
    Chat (document-scoped)
 ---------------------------------------------------------- */
 const chatSeen=new Set(),chatCache=[];
-function renderChat(){
+function renderChat(scrollToMsgId = null){
   const box=$('chatList');
   if(!box) return;
   if(!chatCache.length){
@@ -850,13 +850,96 @@ function renderChat(){
   }
   box.innerHTML='';
   chatCache.forEach(m=>{
+    const isAI = (m.messageType === 'AI' || m.Message_Type__c === 'AI');
+    const isThinking = m.isThinking || m.messageType === 'AI-thinking';
+    const isInbound = (m.inbound || m.Is_Inbound__c);
+    
     const wrap=document.createElement('div'), ts=document.createElement('div'), row=document.createElement('div');
-    wrap.className=(m.inbound||m.Is_Inbound__c)?'me':'them';
-    ts.className='chat-ts'; ts.textContent=new Date(m.at||m.createdDate||Date.now()).toLocaleString();
-    row.className='chat-row'; row.innerHTML=m.body;
+    wrap.className = isInbound ?'me':'them';
+    if (isAI || isThinking) wrap.classList.add('ai-message');
+    wrap.setAttribute('data-msg-id', m.id);
+    
+    ts.className='chat-ts'; 
+    ts.textContent=new Date(m.at||m.createdDate||Date.now()).toLocaleString();
+    
+    row.className='chat-row';
+    if (isAI || isThinking) row.classList.add('ai-bubble');
+    row.innerHTML=m.body;
+    
+    // Add AI feedback buttons (only for AI messages not yet marked)
+    if (isAI && !isThinking && !m.aiHelpful && !m.aiEscalated && !m.AI_Helpful__c && !m.AI_Escalated__c) {
+      const feedback = document.createElement('div');
+      feedback.className = 'ai-feedback';
+      feedback.innerHTML = `
+        <button class="feedback-btn helpful" data-id="${m.id}" onclick="handleAIFeedback('${m.id}', 'helpful')">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          ${_t_safe('AI_HELPFUL_BTN')}
+        </button>
+        <button class="feedback-btn escalate" data-id="${m.id}" onclick="handleAIFeedback('${m.id}', 'escalate')">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+          </svg>
+          ${_t_safe('AI_ESCALATE_BTN')}
+        </button>
+      `;
+      row.appendChild(feedback);
+    } else if (m.aiHelpful || m.AI_Helpful__c) {
+      const thanks = document.createElement('div');
+      thanks.className = 'ai-feedback-done';
+      thanks.innerHTML = `
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:#22c55e;">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+        ${_t_safe('AI_FEEDBACK_THANKS')}
+      `;
+      row.appendChild(thanks);
+    } else if (m.aiEscalated || m.AI_Escalated__c) {
+      const escalated = document.createElement('div');
+      escalated.className = 'ai-feedback-done';
+      escalated.innerHTML = `
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:#0369a1;">
+          <path d="M7 17L17 7M17 7H7M17 7v10"/>
+        </svg>
+        ${_t_safe('AI_ESCALATED')}
+      `;
+      row.appendChild(escalated);
+    }
+    
+    // Add "Ask AI" button for human mode messages
+    // Show when: user's own message (inbound=true, right side), in human mode, not AI, not thinking, not system, not already asked
+    const isUserMessage = isInbound && !isAI && !isThinking && m.messageType !== 'System';
+    if (isUserMessage && chatMode === 'human' && !m.askedAI) {
+      const askAI = document.createElement('div');
+      askAI.className = 'ask-ai-btn';
+      askAI.innerHTML = `
+        <button onclick="askAIAboutMessage('${m.id}', \`${escapeHtml(m.body)}\`)">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 2a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0V6H6a1 1 0 110-2h1V3a1 1 0 011-1zm0 7a3 3 0 100 6 3 3 0 000-6z"/>
+          </svg>
+          Spørg AI?
+        </button>
+      `;
+      row.appendChild(askAI);
+    }
+    
     wrap.appendChild(row); box.appendChild(ts); box.appendChild(wrap);
   });
-  box.scrollTop=box.scrollHeight;
+  
+  // Smart scrolling
+  if (scrollToMsgId) {
+    setTimeout(() => {
+      const targetMsg = box.querySelector(`[data-msg-id="${scrollToMsgId}"]`);
+      if (targetMsg) {
+        targetMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        box.scrollTop = box.scrollHeight;
+      }
+    }, 100);
+  } else {
+    box.scrollTop = box.scrollHeight;
+  }
 }
 async function fetchChat(){
   try {
@@ -897,26 +980,43 @@ async function sendChat(){
   const ed=$('chatEditor'), html=(ed?.innerHTML || '').trim();
   if(!html) return;
   
-  ed.setAttribute('contenteditable','false');
-  ed.textContent=_t_safe('GENERIC_SENDING');
+  // Check if we should use AI mode (identifier mode + active document + AI mode selected)
+  const useAI = (MODE === 'identifier' && active >= 0 && active < docs.length && chatMode === 'ai');
   
-  try {
-    let url, options;
-    if (MODE === 'journal') {
-      url = CHAT_SEND;
-      options = {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          externalId,
-          accessToken,
-          body: html
-        })
-      };
-    } else {
-      // Identifier mode: POST with Bearer token and journal ID
-      url = `${API}/identifier/chat/send`;
-      options = {
+  if (useAI) {
+    // AI-powered document Q&A
+    ed.setAttribute('contenteditable','false');
+    
+    // Add user's question immediately
+    const userMsgId = `q-${Date.now()}`;
+    chatCache.push({
+      id: userMsgId,
+      body: html,
+      inbound: true,
+      at: new Date().toISOString(),
+      messageType: 'Human'
+    });
+    
+    // Add AI "thinking" placeholder
+    const thinkingId = `thinking-${Date.now()}`;
+    chatCache.push({
+      id: thinkingId,
+      body: '<span class="ai-thinking">🤔 AI tænker<span class="dots"></span></span>',
+      inbound: false,
+      at: new Date().toISOString(),
+      messageType: 'AI-thinking',
+      isThinking: true
+    });
+    
+    ed.innerHTML='';
+    renderChat();
+    
+    try {
+      const currentDoc = docs[active];
+      
+      // Call AI endpoint
+      const aiUrl = ID_CHAT_ASK;
+      const aiOptions = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -924,31 +1024,306 @@ async function sendChat(){
         },
         body: JSON.stringify({
           journalId: selectedJournalId,
-          body: html
+          documentId: currentDoc.id,
+          question: html.replace(/<[^>]*>/g, ''), // Strip HTML tags for question
+          brand: BRAND_KEY,
+          originalTarget: 'AI',
+          finalTarget: 'AI',
+          targetChanged: false
         })
       };
+      
+      const r = await fetch(aiUrl, aiOptions);
+      const j = await r.json().catch(()=>({}));
+      if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
+      
+      if (!r.ok) {
+        throw new Error(j.error || 'AI request failed');
+      }
+      
+      // Remove thinking placeholder
+      const thinkingIdx = chatCache.findIndex(m => m.id === thinkingId);
+      if (thinkingIdx !== -1) chatCache.splice(thinkingIdx, 1);
+      
+      // Update user question with Salesforce ID
+      const userMsg = chatCache.find(m => m.id === userMsgId);
+      if (userMsg && j.inboundMessageId) {
+        userMsg.id = j.inboundMessageId;
+      }
+      
+      // Add AI response
+      const aiMsgId = j.outboundMessageId || `ai-${Date.now()}`;
+      chatCache.push({
+        id: aiMsgId,
+        body: `${j.answer}`,
+        inbound: false,
+        at: j.timestamp || new Date().toISOString(),
+        messageType: 'AI',
+        aiModel: j.aiModel,
+        aiResponseTime: j.responseTimeMs,
+        aiHelpful: false,
+        aiEscalated: false
+      });
+      
+      ed.setAttribute('contenteditable','true');
+      renderChat(aiMsgId); // Pass AI message ID to scroll to it
+      
+    } catch(e) {
+      console.error('AI chat error:', e);
+      
+      // Remove thinking placeholder
+      const thinkingIdx = chatCache.findIndex(m => m.id === thinkingId);
+      if (thinkingIdx !== -1) chatCache.splice(thinkingIdx, 1);
+      
+      ed.setAttribute('contenteditable','true');
+      
+      // Show error in chat
+      chatCache.push({
+        id: `err-${Date.now()}`,
+        body: `❌ AI Fejl: ${e.message || 'Kunne ikke behandle spørgsmålet'}`,
+        inbound: false,
+        at: new Date().toISOString(),
+        messageType: 'System'
+      });
+      renderChat();
     }
+  } else {
+    // Standard human chat (existing code)
+    ed.setAttribute('contenteditable','false');
+    ed.textContent=_t_safe('GENERIC_SENDING');
     
-    const r = await fetch(url, options);
-    const j = await r.json().catch(()=>({}));
-    if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
-    
-    ed.setAttribute('contenteditable','true');
-    ed.innerHTML='';
-    fetchChat();
-  } catch(e) {
-    console.error('sendChat error:', e);
-    ed.setAttribute('contenteditable','true');
+    try {
+      let url, options;
+      if (MODE === 'journal') {
+        url = CHAT_SEND;
+        options = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            externalId,
+            accessToken,
+            body: html
+          })
+        };
+      } else {
+        // Identifier mode: POST with Bearer token and journal ID
+        url = `${API}/identifier/chat/send`;
+        
+        // Determine routing metadata
+        const originalTarget = chatMode === 'ai' ? 'AI' : 'Human';
+        const finalTarget = originalTarget; // For regular send, they match
+        const targetChanged = false; // No change during regular send
+        
+        options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionToken}`
+          },
+          body: JSON.stringify({
+            journalId: selectedJournalId,
+            body: html,
+            messageType: 'Human', // Explicitly set message type for human messages
+            originalTarget,
+            finalTarget,
+            targetChanged
+          })
+        };
+      }
+      
+      const r = await fetch(url, options);
+      const j = await r.json().catch(()=>({}));
+      if (isSessionExpired(r, j)) { handleSessionExpired(); return; }
+      
+      ed.setAttribute('contenteditable','true');
+      ed.innerHTML='';
+      fetchChat();
+    } catch(e) {
+      console.error('sendChat error:', e);
+      ed.setAttribute('contenteditable','true');
+    }
   }
 }
+
+async function handleAIFeedback(messageId, action) {
+  try {
+    const r = await fetch(`${API}/identifier/chat/feedback`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({ messageId, action })
+    });
+    const j = await r.json().catch(() => ({}));
+    
+    if (!r.ok || !j.ok) {
+      console.error('AI feedback failed:', j.error);
+      return;
+    }
+    
+    // Update the message in cache
+    const msg = chatCache.find(m => m.id === messageId);
+    if (msg) {
+      if (action === 'helpful') {
+        msg.aiHelpful = true;
+      } else if (action === 'escalate') {
+        msg.aiEscalated = true;
+        
+        // Add system message about escalation
+        chatCache.push({
+          id: 'system-' + Date.now(),
+          body: `<em style="color:#888;">${_t_safe('AI_ESCALATED_MESSAGE')}</em>`,
+          at: new Date().toISOString(),
+          inbound: false,
+          messageType: 'System'
+        });
+      }
+    }
+    
+    // Re-render chat to show updated buttons
+    renderChat();
+    
+    // Optionally refresh to get the new human message if escalated
+    if (action === 'escalate') {
+      setTimeout(() => fetchChat(), 500);
+    }
+  } catch (e) {
+    console.error('AI feedback error:', e);
+  }
+}
+
+// Helper function to escape HTML for onclick attributes
+function escapeHtml(text) {
+  if (!text) return '';
+  return text
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, ' ')
+    .replace(/\r/g, '');
+}
+
+// Ask AI about a message that was originally sent to human
+async function askAIAboutMessage(messageId, messageBody) {
+  try {
+    // Mark the original message as having asked AI
+    const msg = chatCache.find(m => m.id === messageId);
+    if (msg) {
+      msg.askedAI = true;
+    }
+    
+    // Check if we have an active document
+    if (active < 0 || active >= docs.length) {
+      // No document selected - show error
+      chatCache.push({
+        id: 'error-' + Date.now(),
+        body: `<em style="color:#dc2626;">Vælg venligst et dokument for at bruge AI.</em>`,
+        at: new Date().toISOString(),
+        inbound: false,
+        messageType: 'System'
+      });
+      renderChat();
+      return;
+    }
+    
+    const currentDoc = docs[active];
+    
+    // Add thinking indicator (on LEFT side, from system)
+    chatCache.push({
+      id: 'thinking-' + Date.now(),
+      body: '<span class="ai-thinking">🤔 AI tænker<span class="dots"></span></span>',
+      at: new Date().toISOString(),
+      inbound: false,  // LEFT side
+      messageType: 'AI-thinking',
+      isThinking: true
+    });
+    renderChat();
+    
+    // Send to AI with routing metadata
+    const r = await fetch(`${API}/identifier/chat/ask`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({
+        journalId: selectedJournalId,
+        documentId: currentDoc.id,
+        question: messageBody.replace(/<[^>]*>/g, ''),  // Strip HTML tags
+        brand: BRAND_KEY,
+        originalTarget: 'Human',
+        finalTarget: 'AI',
+        targetChanged: true
+      })
+    });
+    
+    const j = await r.json().catch(() => ({}));
+    
+    // Remove thinking indicator
+    let newCache = chatCache.filter(m => !m.isThinking);
+    chatCache = newCache;
+    
+    if (!r.ok) {
+      console.error('Ask AI failed:', j.error || 'Request failed');
+      chatCache.push({
+        id: 'error-' + Date.now(),
+        body: `<em style="color:#dc2626;">${j.error || 'Der opstod en fejl. Prøv igen.'}</em>`,
+        at: new Date().toISOString(),
+        inbound: false,
+        messageType: 'System'
+      });
+      renderChat();
+      return;
+    }
+    
+    // Add AI response
+    if (j.answer) {
+      const aiMsgId = j.outboundMessageId || 'ai-' + Date.now();
+      chatCache.push({
+        id: aiMsgId,
+        body: j.answer,
+        at: j.timestamp || new Date().toISOString(),
+        inbound: false,  // LEFT side
+        messageType: 'AI',
+        fromAI: true
+      });
+    }
+    
+    renderChat();
+    
+    // Optionally refresh to sync with server
+    setTimeout(() => fetchChat(), 500);
+  } catch (e) {
+    console.error('Ask AI error:', e);
+    let newCache = chatCache.filter(m => !m.isThinking);
+    chatCache = newCache;
+    chatCache.push({
+      id: 'error-' + Date.now(),
+      body: `<em style="color:#dc2626;">Der opstod en fejl. Prøv igen.</em>`,
+      at: new Date().toISOString(),
+      inbound: false,
+      messageType: 'System'
+    });
+    renderChat();
+  }
+}
+
+// Make functions globally accessible for onclick handlers
+window.handleAIFeedback = handleAIFeedback;
+window.askAIAboutMessage = askAIAboutMessage;
+
 document.querySelectorAll('.chat-tools button').forEach(b=>b.onclick=()=>document.execCommand(b.dataset.cmd,false));
 
 function openChatPanel(source='user'){
-  const panel=$('chatPanel'), label=$('chatLabel'), header=$('chatHeader');
+  const panel=$('chatPanel'), header=$('chatHeader'), pillBtn=$('chatPillBtn');
   if (!panel || !header) return;
   
   panel.style.display='flex'; panel.classList.remove('hidden'); header.textContent = _t_safe('CHAT_HEADER_OPEN');
-  if (label){ label.style.display='none'; label.classList.add('hidden'); }
+  
+  // Hide chat pill button when chat is open
+  if (pillBtn) pillBtn.style.display = 'none';
   
   // Clear old messages when switching journals
   chatCache.length = 0;
@@ -959,18 +1334,61 @@ function openChatPanel(source='user'){
 }
 
 function closeChatPanel(){
-  const panel=$('chatPanel'), label=$('chatLabel'), header=$('chatHeader');
+  const panel=$('chatPanel'), header=$('chatHeader'), pillBtn=$('chatPillBtn');
   if (!panel || !header) return;
   panel.style.display='none'; panel.classList.add('hidden'); header.textContent = _t_safe('CHAT_HEADER');
-  if (!hasSeenLabel()){ if(label){ label.classList.remove('hidden'); label.style.display='block'; positionChatLabel(); } }
-  else { if(label){ label.style.display='none'; label.classList.add('hidden'); } }
+  
+  // Show chat pill button when chat is closed
+  if (pillBtn) pillBtn.style.display = 'inline-flex';
 }
 
-if ($('chatFab'))    $('chatFab').onclick=()=>{ if($('chatPanel')?.style.display==='flex'){ closeChatPanel(); } else { openChatPanel('user'); } };
+if ($('chatPillBtn'))    $('chatPillBtn').onclick=()=>{ if($('chatPanel')?.style.display==='flex'){ closeChatPanel(); } else { openChatPanel('user'); } };
 if ($('chatHeader')) $('chatHeader').onclick=()=>{ if($('chatPanel')?.style.display==='flex'){ closeChatPanel(); } };
-if ($('chatLabel'))  $('chatLabel').onclick = () => openChatPanel('user');
 if ($('chatSend'))   $('chatSend').onclick=sendChat;
 if ($('chatEditor')) $('chatEditor').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.ctrlKey) sendChat(); });
+
+/* Chat mode toggle */
+let chatMode = 'ai'; // 'ai' or 'human'
+if ($('modeAI')) {
+  $('modeAI').onclick = () => {
+    chatMode = 'ai';
+    $('modeAI').classList.add('active');
+    $('modeHuman').classList.remove('active');
+  };
+}
+if ($('modeHuman')) {
+  $('modeHuman').onclick = () => {
+    chatMode = 'human';
+    $('modeHuman').classList.add('active');
+    $('modeAI').classList.remove('active');
+  };
+}
+
+/* Chat expand/collapse */
+if ($('chatExpandBtn')) {
+  $('chatExpandBtn').onclick = () => {
+    const panel = $('chatPanel');
+    if (panel) {
+      panel.classList.toggle('expanded');
+      const btn = $('chatExpandBtn');
+      const svg = btn.querySelector('svg');
+      
+      if (panel.classList.contains('expanded')) {
+        // Minimize icon
+        if (svg) {
+          svg.innerHTML = '<path d="M3 3v3h3M17 17h-3v-3M17 3h-3V6M3 17v-3h3" stroke="currentColor" stroke-width="2" fill="none"/>';
+        }
+        btn.setAttribute('title', 'Minimer chat');
+      } else {
+        // Expand icon
+        if (svg) {
+          svg.innerHTML = '<path d="M14 3h3v3M3 17v-3h3M17 14v3h-3M3 6V3h3" stroke="currentColor" stroke-width="2" fill="none"/>';
+        }
+        btn.setAttribute('title', 'Udvid chat');
+      }
+    }
+  };
+}
 
 /* Chat disclaimer close button */
 const CHAT_DISCLAIMER_KEY = 'dfj_chat_disclaimer_dismissed';
@@ -995,48 +1413,6 @@ function showChatDisclaimer() {
   } catch(e){}
 }
 showChatDisclaimer();
-
-/* NEW: robust positioning that does not "grow" on scroll.
-   - Anchor horizontally using 'right' so width never feeds back into the calc.
-   - Measure natural size first to get correct height for vertical centering. */
-function positionChatLabel(){
-  const fab=$('chatFab'), label=$('chatLabel');
-  if (!fab || !label) return;
-  if (label.classList.contains('hidden')) return;
-
-  const fr = fab.getBoundingClientRect();
-
-  // Ensure we can measure intrinsic size without feedback loops
-  const prev = {
-    display: label.style.display,
-    left: label.style.left,
-    right: label.style.right,
-    width: label.style.width
-  };
-  if (prev.display === 'none') label.style.display = 'block';
-
-  // Reset horizontal positioning for a clean measurement
-  label.style.left  = 'auto';
-  label.style.right = 'auto';
-  label.style.width = 'auto';
-
-  const lr = label.getBoundingClientRect();
-
-  const GAP = 12;
-  // Right distance from viewport edge to label's right edge
-  const rightPx = Math.max(0, window.innerWidth - fr.left + GAP);
-  label.style.right = rightPx + 'px';   // ← independent of label width
-  label.style.left  = 'auto';
-
-  // Vertical: center against FAB
-  label.style.top = (fr.top + (fr.height - lr.height)/2) + 'px';
-
-  // restore original display if we temporarily changed it
-  label.style.display = prev.display;
-}
-window.addEventListener('resize', positionChatLabel);
-window.addEventListener('scroll', positionChatLabel, { passive: true });
-// Note: FAB is fixed; scroll listener only handles mobile UI bars resizing.
 
 /* ----------------------------------------------------------
    In-app guidance tour
@@ -1338,7 +1714,7 @@ function showBackToJournalsButton() {
       hide($('sidebar'));
       hide($('viewerCard'));
       hide($('sidebarActions'));
-      hide($('chatFab'));
+      hide($('chatPillBtn'));
       
       // Show journal selection again
       showJournalSelection();
@@ -1365,14 +1741,7 @@ function enterPortalUI(){
   if (menuBtn) menuBtn.style.display = '';
   
   // Chat always visible (will load per-document messages)
-  show($('chatFab'));
-  if (!hasSeenLabel()){
-    const lbl=$('chatLabel');
-    if (lbl){ lbl.classList.remove('hidden'); lbl.style.display='block'; setTimeout(positionChatLabel, 0); }
-  } else {
-    const lbl=$('chatLabel');
-    if (lbl){ lbl.classList.add('hidden'); lbl.style.display='none'; }
-  }
+  show($('chatPillBtn'));
   
   // Show back button (identifier mode only - always visible now)
   if (MODE === 'identifier') {

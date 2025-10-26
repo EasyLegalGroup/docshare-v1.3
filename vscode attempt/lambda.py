@@ -25,6 +25,12 @@ DEBUG_ALLOW_IDENTIFIER_DOCURL = (os.environ.get("DEBUG_ALLOW_IDENTIFIER_DOCURL",
 SESSION_HMAC_SECRET = os.environ.get("SESSION_HMAC_SECRET", "")
 SESSION_TTL_SECONDS = int(os.environ.get("URL_TTL_SECONDS", "900"))  # default 15 min if unset
 
+# AI Chatbot configuration
+AI_ENABLED = (os.environ.get("AI_ENABLED", "true").lower() == "true")
+DYNAMODB_TEXT_CACHE_TABLE = os.environ.get("DYNAMODB_TEXT_CACHE_TABLE", "dfj-pdf-text-cache")
+BEDROCK_MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "us.anthropic.claude-3-5-haiku-20241022-v1:0")
+BEDROCK_REGION = os.environ.get("BEDROCK_REGION", "us-east-1")
+
 ALLOWED_ORIGINS = {
     "https://dfj.lightning.force.com",
     "https://dfj.my.salesforce.com",
@@ -217,6 +223,26 @@ def salesforce_insert(instance_url, org_token, sobject, payload):
 
 # ===================== S3 PRESIGN =====================
 _s3 = boto3.client("s3", region_name=AWS_REGION)
+
+# AI Chatbot clients (lazy-initialized)
+_dynamodb = None
+_text_cache_table = None
+_bedrock_client = None
+
+def _get_text_cache_table():
+    """Lazy-initialize DynamoDB table for text caching."""
+    global _dynamodb, _text_cache_table
+    if _text_cache_table is None:
+        _dynamodb = boto3.resource('dynamodb', region_name=AWS_REGION)
+        _text_cache_table = _dynamodb.Table(DYNAMODB_TEXT_CACHE_TABLE)
+    return _text_cache_table
+
+def _get_bedrock_client():
+    """Lazy-initialize Bedrock client."""
+    global _bedrock_client
+    if _bedrock_client is None:
+        _bedrock_client = boto3.client('bedrock-runtime', region_name=BEDROCK_REGION)
+    return _bedrock_client
 
 def s3_presign_get(bucket, key, expires=600):
     return _s3.generate_presigned_url(
@@ -1143,6 +1169,211 @@ def handle_identifier_approve(event, data):
         log("identifier_approve error:", repr(e))
         return resp(event, 500, {"error": "Server error"})
 
+# ===================== AI CHATBOT HELPERS =====================
+
+def extract_pdf_text(bucket: str, key: str) -> dict:
+    """
+    Extract text from PDF using PyMuPDF (fitz).
+    
+    Returns:
+        {
+            'text': str,
+            'page_count': int,
+            'file_size': int
+        }
+    """
+    try:
+        import fitz  # PyMuPDF
+        
+        log(f"AI: Extracting text from s3://{bucket}/{key}")
+        
+        # Download PDF from S3
+        obj = _s3.get_object(Bucket=bucket, Key=key)
+        pdf_bytes = obj['Body'].read()
+        file_size = len(pdf_bytes)
+        
+        log(f"AI: Downloaded {file_size} bytes")
+        
+        # Open PDF with PyMuPDF
+        doc = fitz.open(stream=pdf_bytes, filetype='pdf')
+        
+        # Extract text from all pages
+        text_parts = []
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            page_text = page.get_text()
+            if page_text.strip():
+                text_parts.append(f"--- Page {page_num + 1} ---\n{page_text}")
+        
+        full_text = '\n\n'.join(text_parts)
+        page_count = len(doc)
+        doc.close()
+        
+        log(f"AI: Extracted {len(full_text)} characters from {page_count} pages")
+        
+        return {
+            'text': full_text,
+            'page_count': page_count,
+            'file_size': file_size
+        }
+        
+    except ImportError:
+        log("AI ERROR: PyMuPDF (fitz) not available. Check Lambda layer is attached.")
+        raise Exception("PyMuPDF not available")
+    except Exception as e:
+        log(f"AI ERROR: PDF extraction failed: {repr(e)}")
+        raise
+
+
+def get_cached_text(s3_key: str) -> tuple:
+    """
+    Get cached text from DynamoDB or extract if not cached.
+    
+    Returns:
+        (text: str, was_cached: bool)
+    """
+    try:
+        table = _get_text_cache_table()
+        
+        # Check cache first
+        log(f"AI: Checking cache for {s3_key}")
+        response = table.get_item(Key={'s3_key': s3_key})
+        
+        if 'Item' in response:
+            log(f"AI: Cache HIT for {s3_key}")
+            return (response['Item']['text'], True)
+        
+        log(f"AI: Cache MISS for {s3_key}, extracting...")
+        
+        # Extract PDF text
+        result = extract_pdf_text(DOCS_BUCKET, s3_key)
+        
+        # Cache for 30 days
+        from datetime import datetime, timedelta
+        ttl = int((datetime.utcnow() + timedelta(days=30)).timestamp())
+        
+        log(f"AI: Caching text in DynamoDB...")
+        table.put_item(Item={
+            's3_key': s3_key,
+            'text': result['text'],
+            'extracted_at': datetime.utcnow().isoformat(),
+            'page_count': result['page_count'],
+            'file_size': result['file_size'],
+            'ttl': ttl
+        })
+        
+        log(f"AI: Text cached successfully (TTL: 30 days)")
+        
+        return (result['text'], False)
+        
+    except Exception as e:
+        log(f"AI ERROR: get_cached_text failed: {repr(e)}")
+        raise
+
+
+def ask_ai_about_document(document_text: str, question: str, context: dict = None) -> str:
+    """
+    Send question + document to AWS Bedrock (Claude 3.5 Haiku).
+    
+    Args:
+        document_text: Extracted PDF text
+        question: Customer's question
+        context: Optional metadata (document name, journal name, brand)
+    
+    Returns:
+        AI-generated answer
+    """
+    try:
+        bedrock = _get_bedrock_client()
+        
+        log(f"AI: Asking AI (question length: {len(question)} chars)")
+        
+        # Detect language from brand or question
+        brand = (context or {}).get('brand', 'dk').lower()
+        lang_map = {'dk': 'Danish', 'se': 'Swedish', 'ie': 'English'}
+        default_lang = lang_map.get(brand, 'Danish')
+        
+        # Build context-aware prompt
+        system_prompt = f"""You are a helpful legal document assistant for Din Familiejurist (family law firm).
+Your role is to answer customer questions about their legal documents clearly and accurately.
+
+Guidelines:
+- Only answer based on the document content provided
+- If the answer is not in the document, say so politely
+- Use simple, customer-friendly language (avoid legal jargon)
+- Be concise but complete
+- For dates, amounts, or specific terms, quote the document exactly
+- If asked about legal advice, remind them to contact their lawyer
+- Respond in the same language as the question (Danish, Swedish, or English)
+- Default language: {default_lang}
+"""
+        
+        # Add document context if provided
+        context_text = ""
+        if context:
+            doc_name = context.get('name', 'Unknown')
+            journal_name = context.get('journal_name', '')
+            context_text = f"\nDocument: {doc_name}\n"
+            if journal_name:
+                context_text += f"Case: {journal_name}\n"
+        
+        # Limit document text to ~15K chars (to stay within token limits)
+        max_text_length = 15000
+        truncated_text = document_text[:max_text_length]
+        if len(document_text) > max_text_length:
+            truncated_text += f"\n\n[Document truncated - showing first {max_text_length} characters]"
+        
+        # Build user prompt
+        user_prompt = f"""{context_text}
+Document content:
+{truncated_text}
+
+Customer question: {question}
+
+Please answer the question based on the document content above."""
+        
+        # Call Bedrock (Claude 3.5 Haiku)
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1000,
+            "temperature": 0.3,  # Lower = more focused/consistent
+            "system": system_prompt,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ]
+        })
+        
+        start_time = time.time()
+        
+        response = bedrock.invoke_model(
+            modelId=BEDROCK_MODEL_ID,
+            body=body
+        )
+        
+        elapsed_time = time.time() - start_time
+        
+        result = json.loads(response['body'].read())
+        answer = result['content'][0]['text']
+        
+        log(f"AI: Response generated in {elapsed_time:.2f}s ({len(answer)} chars)")
+        
+        return answer
+        
+    except Exception as e:
+        log(f"AI ERROR: ask_ai_about_document failed: {repr(e)}")
+        # Return friendly error message in appropriate language
+        brand = (context or {}).get('brand', 'dk').lower()
+        if brand == 'se':
+            return "Jag beklagar, jag kunde inte behandla din fråga. Försök igen eller kontakta supporten."
+        elif brand == 'ie':
+            return "I apologize, I couldn't process your question. Please try again or contact support."
+        else:
+            return "Jeg beklager, jeg kunne ikke behandle dit spørgsmål. Prøv venligst igen eller kontakt support."
+
+
 # ---------- CHAT (document-scoped) ----------
 
 def handle_chat_send(event, data):
@@ -1278,7 +1509,9 @@ def handle_identifier_chat_list(event, data):
         
         # DEBUG: Log the SOQL query
         soql = (
-            "SELECT Id, Body__c, Is_Inbound__c, CreatedDate, CreatedBy.Name "
+            "SELECT Id, Body__c, Is_Inbound__c, CreatedDate, CreatedBy.Name, "
+            "       Message_Type__c, AI_Model__c, AI_Helpful__c, AI_Escalated__c, "
+            "       AI_Response_Time__c, Escalated_From__c "
             "FROM ChatMessage__c "
             f"WHERE Parent_Record__c = '{soql_escape(journal_id)}' " +
             (f"AND CreatedDate > {since} " if since else "") +
@@ -1289,7 +1522,18 @@ def handle_identifier_chat_list(event, data):
         rows = salesforce_query(inst, org_tok, soql).get("records", [])
         log("CHAT_LIST_RESULTS:", len(rows), "messages")
         
-        msgs = [{"id": r["Id"], "body": r.get("Body__c"), "inbound": r.get("Is_Inbound__c", False), "at": r["CreatedDate"]} for r in rows]
+        msgs = [{
+            "id": r["Id"],
+            "body": r.get("Body__c"),
+            "inbound": r.get("Is_Inbound__c", False),
+            "at": r["CreatedDate"],
+            "messageType": r.get("Message_Type__c"),
+            "aiModel": r.get("AI_Model__c"),
+            "aiHelpful": r.get("AI_Helpful__c", False),
+            "aiEscalated": r.get("AI_Escalated__c", False),
+            "aiResponseTime": r.get("AI_Response_Time__c"),
+            "escalatedFrom": r.get("Escalated_From__c")
+        } for r in rows]
         return resp(event, 200, {"ok": True, "messages": msgs})
     except Exception as e:
         log("identifier_chat_list error:", repr(e))
@@ -1324,6 +1568,12 @@ def handle_identifier_chat_send(event, data):
     
     journal_id = (data.get("journalId") or "").strip()
     body       = (data.get("body") or "").strip()
+    message_type = (data.get("messageType") or "Human").strip()
+    
+    # NEW: Routing metadata fields
+    original_target = (data.get("originalTarget") or "Human").strip()
+    final_target = (data.get("finalTarget") or "Human").strip()
+    target_changed = data.get("targetChanged", False)
     
     if not journal_id:
         log("CHAT_SEND_ERROR: Missing journalId in data. Full data:", data)
@@ -1336,16 +1586,285 @@ def handle_identifier_chat_send(event, data):
     try:
         org_tok, inst = get_org_token()
         
-        # Insert message scoped to journal
-        rec_id = salesforce_insert(inst, org_tok, "ChatMessage__c", {
+        # Insert message scoped to journal with routing metadata
+        message_fields = {
             "Parent_Record__c": journal_id,
             "Body__c": body,
             "Is_Inbound__c": True,
-        })
+            "Message_Type__c": message_type,
+        }
+        
+        # Add routing metadata if available (will gracefully handle missing Salesforce fields)
+        if original_target or final_target or target_changed:
+            message_fields["Original_Target__c"] = original_target
+            message_fields["Final_Target__c"] = final_target
+            message_fields["Target_Changed__c"] = target_changed
+        
+        rec_id = salesforce_insert(inst, org_tok, "ChatMessage__c", message_fields)
+        log(f"CHAT_SEND_SUCCESS: Created message {rec_id} with routing: original={original_target}, final={final_target}, changed={target_changed}")
         return resp(event, 200, {"ok": True, "id": rec_id})
     except Exception as e:
         log("identifier_chat_send error:", repr(e))
+        log("Full traceback:", traceback.format_exc())
         return resp(event, 500, {"error": "Salesforce insert failed"})
+
+
+def handle_identifier_chat_ask(event, data):
+    """
+    AI-powered document Q&A endpoint.
+    
+    POST /identifier/chat/ask
+    Headers: Authorization: Bearer <session-token>
+    Body: {
+        "journalId": "a015g00000...",
+        "documentId": "a0M5g00000...",
+        "question": "What is this document about?",
+        "brand": "dk"  // optional, defaults to detected brand
+    }
+    
+    Returns: {
+        "answer": "Based on your document...",
+        "documentName": "Testament.pdf",
+        "isAI": true,
+        "cached": true,
+        "timestamp": "2025-10-26T..."
+    }
+    """
+    # Check if AI is enabled
+    if not AI_ENABLED:
+        return resp(event, 503, {"error": "AI chatbot is currently disabled"})
+    
+    # Authorization: Bearer <session>
+    token = get_bearer(event)
+    if not token:
+        return resp(event, 401, {"error": "Missing session token"})
+    
+    try:
+        sess = verify_session(token)
+    except Exception:
+        return resp(event, 401, {"error": "Invalid or expired session"})
+    
+    # Parse request
+    journal_id = (data.get("journalId") or "").strip()
+    document_id = (data.get("documentId") or "").strip()
+    question = (data.get("question") or "").strip()
+    brand = (data.get("brand") or detect_brand(event, None) or "dk").strip().lower()
+    
+    # NEW: Routing metadata (for tracking if user switched from Human to AI)
+    original_target = (data.get("originalTarget") or "AI").strip()
+    final_target = (data.get("finalTarget") or "AI").strip()
+    target_changed = data.get("targetChanged", False)
+    
+    if not all([journal_id, document_id, question]):
+        return resp(event, 400, {
+            "error": "Missing required fields",
+            "required": ["journalId", "documentId", "question"]
+        })
+    
+    try:
+        org_tok, inst = get_org_token()
+        
+        # Get document details from Salesforce
+        soql = f"""
+            SELECT Id, Name, S3_Key__c, Journal__r.Name
+            FROM Shared_Document__c
+            WHERE Id = '{soql_escape(document_id)}'
+              AND Journal__c = '{soql_escape(journal_id)}'
+            LIMIT 1
+        """
+        
+        result = salesforce_query(inst, org_tok, soql)
+        if not result.get('records'):
+            log(f"AI ERROR: Document not found - docId={document_id}, journalId={journal_id}")
+            return resp(event, 404, {"error": "Document not found or access denied"})
+        
+        doc = result['records'][0]
+        s3_key = doc.get('S3_Key__c')
+        
+        if not s3_key:
+            log(f"AI ERROR: Document has no S3 key - docId={document_id}")
+            return resp(event, 400, {"error": "Document has no S3 key"})
+        
+        log(f"AI: Processing question for document: {s3_key}")
+        
+        # 1. CREATE customer's question (inbound ChatMessage) with routing metadata
+        inbound_fields = {
+            "Parent_Record__c": journal_id,
+            "Body__c": question,
+            "Is_Inbound__c": True,
+            "Message_Type__c": "Human"
+        }
+        
+        # Add routing metadata if available
+        if original_target or final_target or target_changed:
+            inbound_fields["Original_Target__c"] = original_target
+            inbound_fields["Final_Target__c"] = final_target
+            inbound_fields["Target_Changed__c"] = target_changed
+        
+        inbound_id = salesforce_insert(inst, org_tok, "ChatMessage__c", inbound_fields)
+        log(f"AI: Created inbound ChatMessage: {inbound_id} (routing: {original_target}->{final_target}, changed={target_changed})")
+        
+        # Get or extract document text
+        start_time = time.time()
+        document_text, was_cached = get_cached_text(s3_key)
+        
+        if not document_text:
+            log(f"AI ERROR: Could not extract text from {s3_key}")
+            return resp(event, 500, {"error": "Could not extract document text"})
+        
+        # Prepare context for AI
+        context = {
+            'name': doc.get('Name', 'Unknown'),
+            'journal_name': doc.get('Journal__r', {}).get('Name', ''),
+            'brand': brand
+        }
+        
+        # Ask AI
+        answer = ask_ai_about_document(document_text, question, context)
+        elapsed_ms = int((time.time() - start_time) * 1000)
+        
+        # 2. CREATE AI's response (outbound ChatMessage)
+        outbound_id = salesforce_insert(inst, org_tok, "ChatMessage__c", {
+            "Parent_Record__c": journal_id,
+            "Body__c": answer,
+            "Is_Inbound__c": False,
+            "Message_Type__c": "AI",
+            "AI_Model__c": BEDROCK_MODEL_ID,
+            "AI_Response_Time__c": elapsed_ms
+        })
+        log(f"AI: Created outbound ChatMessage: {outbound_id} (response time: {elapsed_ms}ms)")
+        
+        # Log interaction (for monitoring and quality improvement)
+        log(f"AI: Answered question - docId={document_id}, questionLen={len(question)}, answerLen={len(answer)}, cached={was_cached}")
+        
+        return resp(event, 200, {
+            "answer": answer,
+            "documentName": context['name'],
+            "isAI": True,
+            "cached": was_cached,
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "inboundMessageId": inbound_id,
+            "outboundMessageId": outbound_id,
+            "responseTimeMs": elapsed_ms
+        })
+        
+    except Exception as e:
+        log(f"AI ERROR: chat/ask failed: {repr(e)}")
+        log("Full traceback:", traceback.format_exc())
+        return resp(event, 500, {
+            "error": "AI query failed",
+            "details": str(e) if os.environ.get("DEBUG") else "Internal server error"
+        })
+
+
+def handle_identifier_chat_feedback(event, data):
+    """
+    Handle AI message feedback (helpful or escalate to human).
+    
+    POST /identifier/chat/feedback
+    Headers: Authorization: Bearer <session-token>
+    Body: {
+        "messageId": "a0V5g000002",
+        "action": "helpful" | "escalate"
+    }
+    
+    Returns: {
+        "ok": true,
+        "escalatedMessageId": "a0V5g000003"  // only if action=escalate
+    }
+    """
+    # Authorization: Bearer <session>
+    token = get_bearer(event)
+    if not token:
+        return resp(event, 401, {"error": "Missing session token"})
+    
+    try:
+        sess = verify_session(token)
+    except Exception:
+        return resp(event, 401, {"error": "Invalid or expired session"})
+    
+    # Parse request
+    message_id = (data.get("messageId") or "").strip()
+    action = (data.get("action") or "").strip().lower()
+    
+    if not message_id:
+        return resp(event, 400, {"error": "Missing messageId"})
+    
+    if action not in ("helpful", "escalate"):
+        return resp(event, 400, {"error": "Invalid action. Must be 'helpful' or 'escalate'"})
+    
+    try:
+        org_tok, inst = get_org_token()
+        
+        if action == "helpful":
+            # Just mark AI message as helpful
+            salesforce_patch(inst, org_tok, "ChatMessage__c", message_id, {
+                "AI_Helpful__c": True
+            })
+            log(f"AI Feedback: Message {message_id} marked as helpful")
+            return resp(event, 200, {"ok": True})
+        
+        elif action == "escalate":
+            # 1. Get the AI message to find the journal and previous question
+            ai_msg_soql = f"""
+                SELECT Id, Parent_Record__c, CreatedDate
+                FROM ChatMessage__c
+                WHERE Id = '{soql_escape(message_id)}'
+                LIMIT 1
+            """
+            ai_msg_result = salesforce_query(inst, org_tok, ai_msg_soql)
+            if not ai_msg_result.get('records'):
+                return resp(event, 404, {"error": "AI message not found"})
+            
+            ai_msg = ai_msg_result['records'][0]
+            journal_id = ai_msg.get('Parent_Record__c')
+            
+            # 2. Find the original customer question (most recent inbound Human message before this AI message)
+            original_soql = f"""
+                SELECT Id, Body__c
+                FROM ChatMessage__c
+                WHERE Parent_Record__c = '{soql_escape(journal_id)}'
+                  AND Is_Inbound__c = true
+                  AND Message_Type__c = 'Human'
+                  AND CreatedDate < {ai_msg.get('CreatedDate')}
+                ORDER BY CreatedDate DESC
+                LIMIT 1
+            """
+            original_result = salesforce_query(inst, org_tok, original_soql)
+            
+            if not original_result.get('records'):
+                log(f"AI Escalate: Could not find original question for AI message {message_id}")
+                return resp(event, 400, {"error": "Could not find original question"})
+            
+            original = original_result['records'][0]
+            original_question = original.get('Body__c', '')
+            
+            # 3. Mark AI message as escalated
+            salesforce_patch(inst, org_tok, "ChatMessage__c", message_id, {
+                "AI_Escalated__c": True
+            })
+            log(f"AI Escalate: Message {message_id} marked as escalated")
+            
+            # 4. Create new human-mode question (duplicate question for agent queue)
+            new_msg_id = salesforce_insert(inst, org_tok, "ChatMessage__c", {
+                "Parent_Record__c": journal_id,
+                "Body__c": original_question,
+                "Is_Inbound__c": True,
+                "Message_Type__c": "Human",
+                "Escalated_From__c": message_id
+            })
+            log(f"AI Escalate: Created new human message {new_msg_id} (escalated from {message_id})")
+            
+            return resp(event, 200, {
+                "ok": True,
+                "escalatedMessageId": new_msg_id
+            })
+        
+    except Exception as e:
+        log(f"AI Feedback ERROR: {repr(e)}")
+        log("Full traceback:", traceback.format_exc())
+        return resp(event, 500, {"error": "Feedback processing failed"})
+
 
 # ===================== HEALTH =====================
 
@@ -1425,6 +1944,8 @@ def lambda_handler(event, context):
         if path.endswith("/approve")                    and method == "POST": return handle_doc_approve(event, data)
 
         # Chat (identifier-specific routes MUST come before journal routes to avoid path collision!)
+        if path.endswith("/identifier/chat/ask")        and method == "POST": return handle_identifier_chat_ask(event, data)
+        if path.endswith("/identifier/chat/feedback")   and method == "POST": return handle_identifier_chat_feedback(event, data)
         if path.endswith("/identifier/chat/send")       and method == "POST": return handle_identifier_chat_send(event, data)
         if path.endswith("/identifier/chat/list")       and method == "POST": return handle_identifier_chat_list(event, data)
         

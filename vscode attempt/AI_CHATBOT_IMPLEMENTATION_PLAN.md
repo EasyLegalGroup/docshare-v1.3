@@ -1,29 +1,83 @@
 # 🤖 AI-Powered Document Chatbot Implementation Plan
 
-**Last Updated**: October 25, 2025  
-**Status**: Planning Phase  
+**Last Updated**: October 26, 2025  
+**Status**: Phase 1 - Infrastructure Setup (In Progress)  
 **Objective**: Add AI-powered Q&A chatbot that answers questions about customer documents
+
+---
+
+## 🎯 **Current Progress**
+
+### ✅ **PHASE 1 COMPLETE** - Infrastructure Fully Validated
+- ✅ **DynamoDB Table Created**: `dfj-pdf-text-cache-test` (with proper tags)
+- ✅ **PyMuPDF Lambda Layer Built**: Version 4 (~25 MB), built in AWS CloudShell
+- ✅ **Layer Attached to Test Lambda**: `dfj-docs-test`
+- ✅ **AWS Bedrock Enabled**: Automatic access + Anthropic use case approved
+- ✅ **IAM Permissions Added**: BedrockInvokePolicy + DynamoDBCachePolicy + S3ReadOnlyAccess
+- ✅ **Lambda Configuration**: 60s timeout, 512 MB memory (optimized for PyMuPDF)
+- ✅ **Bedrock Connection Test**: PASSED - AI responded in Danish (1.51s)
+- ✅ **PDF Extraction Test**: PASSED - Extracted 21,732 chars from 13-page testament (4s)
+- ✅ **Full AI Q&A Test**: PASSED - AI analyzed testament and answered in Danish (7.2s)
+
+### 🎯 **Current Status**: **Ready for Live SPA Testing**
+
+**Test Results Summary**:
+- ✅ S3 → PyMuPDF → DynamoDB caching: **Working perfectly**
+- ✅ DynamoDB cache hit: **Instant retrieval** (no re-extraction)
+- ✅ AWS Bedrock Claude 3.5 Haiku: **Accurate Danish responses**
+- ✅ Cross-region inference (us-east-1 Bedrock from eu-north-1 Lambda): **Working**
+- ✅ AI answer quality: **High** (correctly identified testament details, inheritance percentages, legacies)
+
+### ⏳ **Next Steps**
+- ⏳ **Phase 2**: Integrate AI endpoint into production Lambda (`lambda.py`)
+- ⏳ **Phase 3**: Add `/identifier/chat/ask` route to API Gateway
+- ⏳ **Phase 4**: Test live in SPA (temporary frontend integration)
+- ⏳ **Phase 5**: Production deployment after validation
+
+---
+
+## 🧪 **Test Environment Configuration**
+
+| Resource | Name | Region | Status |
+|----------|------|--------|--------|
+| **Lambda Function** | `dfj-docs-test` | `eu-north-1` | ✅ Active |
+| **DynamoDB Table** | `dfj-pdf-text-cache-test` | `eu-north-1` | ✅ Created |
+| **PyMuPDF Layer** | `pymupdf-layer` (v4) | `eu-north-1` | ✅ Attached |
+| **Bedrock Model** | Claude 3.5 Haiku | `us-east-1` | ✅ Enabled |
+| **S3 Bucket** | (same as prod) | `eu-north-1` | ✅ Existing |
+
+**Layer ARN**: `arn:aws:lambda:eu-north-1:641409597080:layer:pymupdf-layer:4`
+
+**Tags Applied**:
+```
+Environment: test
+Project: docshare
+ManagedBy: manual
+CostCenter: customer-portal
+Purpose: pdf-text-cache
+```
 
 ---
 
 ## 📋 Executive Summary
 
 ### **Goal**
-Replace the current human-staffed chat with an AI chatbot that can:
+Add an AI chatbot that can:
 - Answer customer questions about their legal documents
 - Understand document context (divorce agreements, custody, etc.)
 - Provide instant responses based on document content
 - Reduce support burden while improving customer experience
 
-### **Technical Stack (Recommended)**
+### **Technical Stack**
 - **PDF Text Extraction**: PyMuPDF (fitz) - Free, fast, text-based PDFs
-- **AI Provider**: AWS Bedrock (Claude 3 Sonnet) - Stays in AWS, GDPR-compliant
+- **AI Provider**: AWS Bedrock (Claude 3.5 Haiku) - Stays in AWS, GDPR-compliant
 - **Text Caching**: DynamoDB - Fast lookups, serverless, auto-expiry
 - **Current Infrastructure**: AWS Lambda (Python), S3, API Gateway
 
 ### **Estimated Cost**
-- **Monthly** (1,000 documents, 500 AI queries): ~$10-15/month
-- **One-time setup**: 8-16 hours development time
+- **Test Environment**: <$1/month (minimal usage)
+- **Production** (1,000 documents, 500 AI queries): ~$5/month (using Haiku)
+- **One-time setup**: 12-16 hours development time
 
 ---
 
@@ -83,104 +137,530 @@ Replace the current human-staffed chat with an AI chatbot that can:
 
 ## 📦 Implementation Phases
 
-### **Phase 1: Infrastructure Setup** (2-3 hours)
+### **Phase 1: Infrastructure Setup** ⏳ **(IN PROGRESS)**
 
-#### **1.1 Create DynamoDB Table**
+#### **1.1 Create DynamoDB Table** ✅ **COMPLETED**
 **Purpose**: Cache extracted PDF text to avoid re-parsing
 
-**AWS Console Steps**:
-1. Go to DynamoDB Console
-2. Click "Create table"
-3. Configure:
-   - **Table name**: `dfj-pdf-text-cache`
-   - **Partition key**: `s3_key` (String)
-   - **Billing mode**: On-demand (pay per request)
-   - **TTL**: Enable with attribute `ttl`
-4. Click "Create table"
+**Status**: ✅ Table `dfj-pdf-text-cache-test` created with proper configuration
+
+**Configuration Applied**:
+- **Table name**: `dfj-pdf-text-cache-test`
+- **Partition key**: `s3_key` (String)
+- **Billing mode**: On-demand (pay per request)
+- **TTL**: Enabled on attribute `ttl`
+- **Tags**: Environment=test, Project=docshare, ManagedBy=manual, Purpose=pdf-text-cache
 
 **Table Schema**:
 ```json
 {
   "s3_key": "dk/customer-documents/J-0055362/doc.pdf",
   "text": "Full extracted text content...",
-  "extracted_at": "2025-10-25T10:30:00Z",
+  "extracted_at": "2025-10-26T10:30:00Z",
   "page_count": 12,
   "file_size": 245678,
-  "ttl": 1732550400  // Unix timestamp (30 days from extraction)
+  "ttl": 1735689600  // Unix timestamp (30 days from extraction)
 }
 ```
 
-**Expected Cost**: ~$0.25/month (on-demand, small usage)
+**Expected Cost**: ~$0.25/month (on-demand, test usage)
 
 ---
 
-#### **1.2 Add PyMuPDF Lambda Layer**
+#### **1.2 Add PyMuPDF Lambda Layer** ✅ **COMPLETED**
 **Purpose**: Include PDF parsing library in Lambda
 
-**Option A: Use Pre-built Layer** (Recommended)
-1. Go to Lambda Console
-2. Click "Layers" → "Create layer"
-3. Upload pre-built layer:
-   - **Layer name**: `pymupdf-layer`
-   - **Compatible runtimes**: Python 3.12
-   - **Download from**: [GitHub pymupdf-lambda-layer](https://github.com/chrismattmann/pymupdf-lambda)
+**Status**: ✅ Layer built and attached to `dfj-docs-test`
 
-**Option B: Build Custom Layer**
+**Build Method Used**: AWS CloudShell
+
 ```bash
-# On local machine or EC2 (Amazon Linux 2)
-mkdir python
-pip install pymupdf -t python/
-zip -r pymupdf-layer.zip python/
+# Steps completed:
+mkdir -p python/lib/python3.12/site-packages
+pip3 install pymupdf -t python/lib/python3.12/site-packages
+zip -r pymupdf-layer.zip python
 
-# Upload via AWS Console or CLI
 aws lambda publish-layer-version \
   --layer-name pymupdf-layer \
+  --description "PyMuPDF for PDF text extraction" \
   --zip-file fileb://pymupdf-layer.zip \
-  --compatible-runtimes python3.12
+  --compatible-runtimes python3.12 \
+  --region eu-north-1
 ```
 
-**Attach to Lambda**:
-1. Open your Lambda function (`dfj-docshare-prod`)
-2. Scroll to "Layers"
-3. Click "Add a layer"
-4. Select "Custom layers" → `pymupdf-layer`
+**Result**:
+- **Layer ARN**: `arn:aws:lambda:eu-north-1:641409597080:layer:pymupdf-layer:4`
+- **Version**: 4 (after a few build attempts)
+- **Size**: ~25 MB
+- **Attached to**: `dfj-docs-test` Lambda function
+
+**Verification**:
+```python
+import fitz  # PyMuPDF
+print(fitz.version)  # Expected: (1, 26, 5)
+```
 
 ---
 
-#### **1.3 Enable AWS Bedrock**
-**Purpose**: Activate Claude 3 AI model
+#### **1.3 Enable AWS Bedrock** ✅ **COMPLETED**
+**Purpose**: Activate Claude 3.5 Haiku AI model
 
-**AWS Console Steps**:
-1. Go to AWS Bedrock Console
-2. Select **Region**: `us-east-1` (Bedrock not available in `eu-north-1` yet)
-3. Click "Model access"
-4. Request access to:
-   - **Anthropic Claude 3 Sonnet** (recommended)
-   - **Anthropic Claude 3 Haiku** (faster, cheaper alternative)
-5. Wait for approval (~5 minutes)
+**Status**: ✅ Automatic access enabled (AWS new policy - no manual request needed)
 
-**Lambda IAM Role Update**:
-Add Bedrock permissions to Lambda execution role:
+**AWS Changes** (October 2024):
+- Model access page retired
+- All serverless foundation models automatically enabled
+- Access controlled via IAM policies only
+
+**Model Selected**: 
+- **Claude 3.5 Haiku** (recommended over Sonnet)
+- **Model ID**: `us.anthropic.claude-3-5-haiku-20241022-v1:0` (cross-region inference profile)
+- **Region**: `us-east-1` (Bedrock not available in `eu-north-1` yet)
+- **Cost**: $0.25/million input tokens, $1.25/million output tokens (12x cheaper than Sonnet)
+
+**Why Haiku** (not Sonnet):
+- ✅ 12x cheaper ($0.69/month vs $8.25/month for 500 queries)
+- ✅ 3x faster response times (~1-2 seconds)
+- ✅ Perfect for document Q&A (legal docs are straightforward)
+- ✅ 200K token context (enough for 50-page PDFs)
+
+---
+
+#### **1.4 Update Lambda IAM Role** ✅ **COMPLETED**
+**Purpose**: Grant permissions for Bedrock + DynamoDB access
+
+**Status**: ✅ **DONE** - Policies attached to `dfj-docs-test` execution role
+
+**Required Policies**:
+
+**Policy 1: Bedrock Access**
 ```json
 {
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "BedrockInvokeModel",
       "Effect": "Allow",
       "Action": [
-        "bedrock:InvokeModel"
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
       ],
       "Resource": [
-        "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
+        "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0",
+        "arn:aws:bedrock:*:*:inference-profile/*",
+        "arn:aws:bedrock:*::foundation-model/*"
       ]
     }
   ]
 }
 ```
 
+**Policy 2: DynamoDB Cache Access**
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DynamoDBCacheAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:UpdateItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:eu-north-1:641409597080:table/dfj-pdf-text-cache-test"
+      ]
+    }
+  ]
+}
+```
+
+**AWS Console Steps**:
+1. Go to **IAM Console** → **Roles**
+2. Find execution role for `dfj-docs-test` (e.g., `dfj-docs-test-role-xxxxx`)
+   - *Or: Lambda → `dfj-docs-test` → Configuration → Permissions → Click role link*
+3. Click **"Add permissions"** → **"Create inline policy"**
+4. **JSON editor** → Paste Policy 1 (Bedrock)
+5. **Policy name**: `BedrockInvokePolicy` → **"Create policy"**
+6. Repeat steps 3-5 for Policy 2 (DynamoDB)
+7. **Policy name**: `DynamoDBCachePolicy` → **"Create policy"**
+
 ---
 
-### **Phase 2: Backend Implementation** (4-6 hours)
+#### **1.5 Test Bedrock Connection** ✅ **COMPLETED**
+**Purpose**: Verify AI model is accessible from Lambda
+
+**Status**: ✅ **DONE** - AI responded: "Bedrock fungerer!" (1.51s response time)
+
+**Result**: Simple connection test passed successfully.
+
+---
+
+#### **1.6 Test PDF Extraction + Caching** ✅ **COMPLETED**
+**Purpose**: Validate PDF text extraction and DynamoDB caching
+
+**Status**: ✅ **DONE** - Extracted 21,732 characters from 13-page testament document
+
+**Test Results**:
+- **File**: Testament PDF (~432 KB)
+- **Extraction**: 21,732 characters from 13 pages
+- **Processing Time**: 4 seconds (including cold start)
+- **Memory Usage**: 220 MB / 512 MB allocated
+- **Cache Status**: Successfully stored in DynamoDB with 30-day TTL
+- **Text Quality**: Danish characters (Tønder) preserved correctly
+
+**Second Run** (cache hit):
+- **Retrieval Time**: < 1 second
+- **Cache Working**: ✅ No re-extraction needed
+
+---
+
+#### **1.7 Test Full AI Q&A Pipeline** ✅ **COMPLETED**
+**Purpose**: End-to-end test of complete AI chatbot functionality
+
+**Status**: ✅ **DONE** - AI successfully analyzed document and provided accurate Danish response
+
+**Test Configuration**:
+```json
+{
+  "test_mode": "test_ai_qa",
+  "s3_key": "dk/customer-documents/J-0055362/Mathias Tønder og Nicole Tønder - Testamente (preview by mt@dinfamiliejurist.dk).pdf",
+  "question": "Hvad er dette dokument om?"
+}
+```
+
+**Test Results**:
+- **Cache Status**: HIT (used cached text from previous extraction)
+- **AI Response Time**: 7.23 seconds (Bedrock call)
+- **Memory Usage**: 97 MB / 512 MB (cache hit uses less memory)
+- **Answer Quality**: EXCELLENT ✅
+  - Correctly identified: Mutual testament between Mathias and Nicole Tønder
+  - Accurately extracted: Inheritance percentages (87.5% to surviving spouse, 12.5% to children)
+  - Detailed breakdown: Specific distributions (25% nieces/nephews, 25% siblings, 25% Hugh Hefner, 23% Kattens Værn)
+  - Identified provisions: Residential rights, legacies, trust terms until age 30
+  - Language: Perfect Danish response matching question language
+
+**AI Response Sample** (translated):
+```
+"This document is a mutual testament created by Mathias Tønder and Nicole Tønder. 
+Main points:
+1. Extended cohabitation testament where they wish to inherit each other fully
+2. Distribution terms: 87.5% to longest-living, 12.5% mandatory to children
+3. After longest-living: 25% to nieces/nephews, 25% to siblings, 25% to Hugh Hefner, 23% to Kattens Værn
+4. Special provisions for residential rights, cash legacies, object legacies, trust until age 30"
+```
+
+**Validation**:
+- ✅ Document content accurately analyzed
+- ✅ Complex legal terms correctly interpreted
+- ✅ Percentages and specific names extracted precisely
+- ✅ Customer-friendly language (no legal jargon)
+- ✅ Concise yet complete answer
+- ✅ Correct language detection and response
+
+---
+
+#### **1.8 Anthropic Use Case Approval** ✅ **COMPLETED**
+**Purpose**: Submit AWS Bedrock use case form for Anthropic models
+
+**Status**: ✅ **APPROVED** - Submitted use case and received instant approval
+
+**Submission Details**:
+- **Use Case**: AI-powered document Q&A chatbot for family law firm
+- **Description**: Legal document assistant for customers to ask questions about testaments, contracts, custody agreements
+- **Industry**: Legal / Professional Services
+- **Approval Time**: < 5 minutes (nearly instant)
+
+**Issue Encountered**: Initial test failed with `ResourceNotFoundException: Model use case details have not been submitted`
+
+**Resolution**: Submitted use case via Bedrock Playground (AWS changed process in October 2024 - no longer via Model Access page)
+
+---
+
+### **Phase 1 Completion Checklist**
+
+| Task | Status | Performance Notes |
+|------|--------|-------------------|
+| **1.1 DynamoDB table** | ✅ Done | `dfj-pdf-text-cache-test` created with TTL |
+| **1.2 PyMuPDF layer** | ✅ Done | Layer v4 (~25 MB) attached to `dfj-docs-test` |
+| **1.3 Bedrock enabled** | ✅ Done | Claude 3.5 Haiku auto-enabled |
+| **1.4 IAM permissions** | ✅ Done | Bedrock + DynamoDB + S3 access granted |
+| **1.5 Test Bedrock** | ✅ Done | AI responded in Danish (1.51s) |
+| **1.6 Test PDF extraction** | ✅ Done | 21,732 chars extracted, cached successfully |
+| **1.7 Test AI Q&A** | ✅ Done | Accurate testament analysis in 7.2s |
+| **1.8 Anthropic approval** | ✅ Done | Use case approved instantly |
+
+**Phase 1 Status**: ✅ **100% COMPLETE** - All infrastructure validated and working perfectly!
+
+---
+
+### **Phase 2: Live SPA Testing** (1-2 hours) - ⏳ **IN PROGRESS**
+
+**Goal**: Test AI chatbot functionality with real SPA frontend before full production integration
+
+**Approach**: 
+1. Create lightweight `/identifier/chat/ask` endpoint in test Lambda
+2. Point SPA to test API endpoint temporarily
+3. Test user flow: Login → View document → Ask AI question → Get answer
+4. Validate performance and UX before production deployment
+
+---
+
+#### **2.1 Add AI Endpoint to Test Lambda** ⏳ **IN PROGRESS**
+
+**Create standalone handler** in `dfj-docs-test` Lambda:
+
+```python
+def handle_identifier_chat_ask(event, event_json):
+    """
+    Minimal AI Q&A endpoint for live testing.
+    
+    POST /identifier/chat/ask
+    Headers: Authorization: Bearer <session-token>
+    Body: {
+        "s3_key": "dk/customer-documents/J-0055362/document.pdf",
+        "question": "What is this document about?"
+    }
+    
+    Returns: {
+        "answer": "Based on your document...",
+        "isAI": true,
+        "cached": true
+    }
+    """
+    try:
+        # Get S3 key and question from request
+        s3_key = (event_json.get("s3_key") or "").strip()
+        question = (event_json.get("question") or "").strip()
+        
+        if not s3_key or not question:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({"error": "Missing s3_key or question"})
+            }
+        
+        # Get cached text or extract
+        document_text, was_cached = get_cached_text(s3_key)
+        
+        if not document_text:
+            return {
+                'statusCode': 500,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({"error": "Could not extract document text"})
+            }
+        
+        # Prepare context
+        context = {
+            'name': s3_key.split('/')[-1]
+        }
+        
+        # Ask AI
+        answer = ask_ai_about_document(document_text, question, context)
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',  # CORS for testing
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+            },
+            'body': json.dumps({
+                "answer": answer,
+                "isAI": True,
+                "cached": was_cached,
+                "s3_key": s3_key,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+        }
+        
+    except Exception as e:
+        print(f"❌ chat/ask error: {str(e)}")
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({"error": str(e)})
+        }
+
+# Update lambda_handler to route to new endpoint
+def lambda_handler(event, context):
+    path = event.get("rawPath") or event.get("path") or ""
+    method = (event.get("requestContext") or {}).get("http", {}).get("method") or event.get("httpMethod") or "GET"
+    
+    event_json = {}
+    try:
+        body = event.get("body") or "{}"
+        if event.get("isBase64Encoded"):
+            body = base64.b64decode(body).decode('utf-8')
+        event_json = json.loads(body)
+    except:
+        pass
+    
+    # Route to AI endpoint
+    if path == "/identifier/chat/ask" and method == "POST":
+        return handle_identifier_chat_ask(event, event_json)
+    
+    # Existing test modes
+    return lambda_handler_original(event, context)  # Use existing test handler
+```
+
+---
+
+#### **2.2 Add API Gateway Route (Test)** ⏳ **NOT STARTED**
+
+**AWS Console Steps**:
+1. Go to **API Gateway Console**
+2. Find test API (or create new HTTP API for testing)
+3. **Routes** → **Create**:
+   - **Method**: `POST`
+   - **Path**: `/identifier/chat/ask`
+   - **Integration**: Lambda `dfj-docs-test`
+4. **CORS Configuration**:
+   - **Allow Origins**: `*` (test only)
+   - **Allow Methods**: `POST, OPTIONS`
+   - **Allow Headers**: `Content-Type, Authorization`
+5. **Deploy** to stage (e.g., `test`)
+
+**Test Endpoint**: `https://<test-api-id>.execute-api.eu-north-1.amazonaws.com/test/identifier/chat/ask`
+
+---
+
+#### **2.3 Temporary Frontend Integration** ⏳ **NOT STARTED**
+
+**Add AI mode to chat panel** (minimal changes for testing):
+
+**File**: `app.js`
+
+```javascript
+// Add after chat initialization
+let aiModeEnabled = true;  // Enable AI mode for testing
+
+// Update sendChat function
+async function sendChat() {
+  const editor = $('chatEditor');
+  const txt = (editor.textContent || '').trim();
+  if (!txt) return;
+  
+  // If AI mode enabled and we have an active document
+  if (aiModeEnabled && active >= 0 && active < docs.length) {
+    const currentDoc = docs[active];
+    const s3Key = currentDoc.s3_key;  // Assume we have this from doc metadata
+    
+    try {
+      spin(true);
+      
+      // Call AI endpoint
+      const res = await fetch('https://<test-api-id>.execute-api.eu-north-1.amazonaws.com/test/identifier/chat/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`  // If needed
+        },
+        body: JSON.stringify({
+          s3_key: s3Key,
+          question: txt
+        })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'AI request failed');
+      
+      // Display AI response
+      appendChatBubble('me', txt);
+      appendChatBubble('ai', `🤖 ${data.answer}\n\n<em>(AI-generated response)</em>`);
+      
+      editor.textContent = '';
+      
+    } catch (e) {
+      console.error('AI chat error:', e);
+      setIdMsg(`AI error: ${e.message}`);
+    } finally {
+      spin(false);
+    }
+    
+  } else {
+    // Fallback to existing human chat
+    // ... existing sendChat logic ...
+  }
+}
+
+// Helper to append chat bubbles
+function appendChatBubble(type, message) {
+  const chatList = $('chatList');
+  const bubble = document.createElement('div');
+  bubble.className = type === 'me' ? 'me' : 'them';
+  bubble.innerHTML = `<div class="chat-row">${message.replace(/\n/g, '<br>')}</div>`;
+  chatList.appendChild(bubble);
+  chatList.scrollTop = chatList.scrollHeight;
+}
+```
+
+---
+
+#### **2.4 Live Testing Scenarios** ⏳ **NOT STARTED**
+
+**Test Scenario 1: Simple Question**
+- **Action**: Login with identifier, view testament document
+- **Question**: "What is this document about?"
+- **Expected**: AI provides document summary in Danish
+- **Validate**: Response time < 10 seconds, answer accurate
+
+**Test Scenario 2: Specific Detail**
+- **Question**: "What is the inheritance split?"
+- **Expected**: AI extracts specific percentages (87.5% / 12.5%)
+- **Validate**: Accuracy of numbers, clarity of explanation
+
+**Test Scenario 3: Cache Performance**
+- **Action**: Ask second question about same document
+- **Expected**: Response time < 3 seconds (cache hit)
+- **Validate**: `cached: true` in response
+
+**Test Scenario 4: Multi-language**
+- **Action**: Test with Swedish document
+- **Question** (Swedish): "Vad handlar detta dokument om?"
+- **Expected**: AI responds in Swedish
+- **Validate**: Language detection working
+
+**Test Scenario 5: Error Handling**
+- **Action**: Try to access document without permission
+- **Expected**: 401/403 error, no AI response
+- **Validate**: Security working
+
+---
+
+#### **2.5 Performance Validation** ⏳ **NOT STARTED**
+
+**Metrics to Track**:
+- ✅ First question response time: < 10 seconds
+- ✅ Cached question response time: < 3 seconds
+- ✅ Memory usage: < 300 MB
+- ✅ Error rate: 0% (during testing)
+- ✅ AI answer relevance: Manual review (score 4-5/5)
+
+**Success Criteria**:
+- ✅ All test scenarios pass
+- ✅ No crashes or timeouts
+- ✅ AI answers are accurate and helpful
+- ✅ Cache hit rate > 80% (second+ questions)
+- ✅ User experience smooth (no lag)
+
+---
+
+### **Phase 2 Complete When**:
+- [ ] Test Lambda has `/identifier/chat/ask` endpoint
+- [ ] API Gateway route configured and deployed
+- [ ] SPA can successfully call AI endpoint
+- [ ] All 5 test scenarios pass
+- [ ] Performance metrics meet targets
+- [ ] Ready for production integration
+
+---
+
+### **Phase 3: Backend Implementation** (4-6 hours) - ⏳ **NOT STARTED**
 
 #### **2.1 Add Helper Functions to lambda.py**
 

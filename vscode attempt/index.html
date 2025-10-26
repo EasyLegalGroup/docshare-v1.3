@@ -218,11 +218,35 @@
   </div>
 
   <!-- Chat ------------------------------------------------------------------- -->
-  <button id="chatFab" class="hidden"></button>
-  <div id="chatLabel" class="chat-label hidden" data-i18n="CHAT_LABEL"></div>
+  <button id="chatPillBtn" class="hidden">
+    <span class="pill-icon"></span>
+    <span id="chatPillText" data-i18n="CHAT_LABEL"></span>
+  </button>
 
   <div id="chatPanel" class="hidden">
-    <div id="chatHeader" class="chat-header" data-i18n="CHAT_HEADER"></div>
+    <!-- Modern chat header -->
+    <div id="chatHeader" class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">💬</div>
+        <div class="chat-header-info">
+          <div class="chat-header-title" data-i18n="CHAT_HEADER"></div>
+          <div class="chat-header-status">Online</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button id="chatExpandBtn" class="chat-action-btn" title="Udvid chat">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 3h3v3M3 17v-3h3M17 14v3h-3M3 6V3h3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Contextual tip (AI vs Human mode) -->
+    <div id="chatTip" class="chat-tip hidden">
+      <span id="chatTipText"></span>
+      <button id="chatTipClose" class="chat-tip-close" aria-label="Close">✕</button>
+    </div>
     
     <!-- Pinned disclaimer banner -->
     <div id="chatDisclaimer" class="chat-disclaimer" data-i18n="CHAT_DISCLAIMER">
@@ -231,15 +255,39 @@
     
     <div id="chatList" class="chat-list" data-i18n-empty="CHAT_NO_MESSAGES"></div>
 
-    <div class="chat-input">
+    <!-- Mode toggle (redesigned - moved above input) -->
+    <div class="chat-mode-selector">
+      <button id="modeAI" class="mode-btn active">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 2a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0V6H6a1 1 0 110-2h1V3a1 1 0 011-1zm0 7a3 3 0 100 6 3 3 0 000-6z"/>
+        </svg>
+        <span data-i18n="CHAT_HEADER_AI">AI-assistent</span>
+      </button>
+      <button id="modeHuman" class="mode-btn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="8" cy="5" r="3"/>
+          <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/>
+        </svg>
+        <span data-i18n="CHAT_HEADER">Jurist</span>
+      </button>
+    </div>
+
+    <!-- Composer -->
+    <div class="chat-composer">
       <div class="chat-tools">
-        <button data-cmd="bold"><strong>B</strong></button>
-        <button data-cmd="italic"><em>I</em></button>
-        <button data-cmd="underline"><u>U</u></button>
-        <button data-cmd="insertUnorderedList">•</button>
+        <button data-cmd="bold" title="Fed"><strong>B</strong></button>
+        <button data-cmd="italic" title="Kursiv"><em>I</em></button>
+        <button data-cmd="underline" title="Understregning"><u>U</u></button>
+        <button data-cmd="insertUnorderedList" title="Punktliste">•</button>
       </div>
-      <div id="chatEditor" class="chat-editor" placeholder="" contenteditable="true"></div>
-      <button id="chatSend" class="primary" style="padding:8px 14px;margin-top:6px">Send</button>
+      <div class="chat-editor-wrapper">
+        <div id="chatEditor" class="chat-editor" placeholder="Skriv din besked..." contenteditable="true"></div>
+        <button id="chatSend" class="chat-send-btn" title="Send besked">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 3l16 7-16 7V3zm2 11.5V10h8v-1H4V5.5L14.5 10 4 14.5z"/>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
 

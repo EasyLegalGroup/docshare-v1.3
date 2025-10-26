@@ -89,6 +89,16 @@
     sv: "Öppna ett dokument först för att se relaterade meddelanden.",
     en: "Please open a document first to see related messages."
   },
+      
+      /* AI chat features */
+      AI_HELPFUL_BTN         : 'Hjalp det?',
+      AI_ESCALATE_BTN        : 'Spørg jurist',
+      AI_FEEDBACK_THANKS     : 'Tak for feedback!',
+      AI_ESCALATED           : 'Videresendt til jurist',
+      AI_ESCALATED_MESSAGE   : 'Dette spørgsmål er sendt til vores jurister. Vi svarer inden for 2 arbejdsdage.',
+      CHAT_HEADER_AI         : 'AI-assistent',
+      CHAT_TIP_AI            : 'AI svarer med det samme baseret på dit dokument',
+      CHAT_TIP_HUMAN         : 'Menneskelig jurist svarer inden for 2 arbejdsdage',
   
   // Journal selection (bridge page)
   JOURNAL_OVERVIEW_TITLE: {
@@ -349,6 +359,16 @@
       CHAT_DISCLAIMER   : 'Denna chatt är inte live. Vi strävar efter att svara inom 5 arbetsdagar.',
       CHAT_EMPTY        : 'Inga meddelanden ännu. Skicka ett meddelande för att starta konversationen.',
       CHAT_NO_DOC_WARNING: 'Öppna ett dokument först för att se relaterade meddelanden.',
+      
+      /* AI-chattfunktioner */
+      AI_HELPFUL_BTN         : 'Hjälpte det?',
+      AI_ESCALATE_BTN        : 'Fråga jurist',
+      AI_FEEDBACK_THANKS     : 'Tack för feedback!',
+      AI_ESCALATED           : 'Vidarebefordrad till jurist',
+      AI_ESCALATED_MESSAGE   : 'Denna fråga har skickats till våra jurister. Vi svarar inom 5 arbetsdagar.',
+      CHAT_HEADER_AI         : 'AI-assistent',
+      CHAT_TIP_AI            : 'AI svarar omedelbart baserat på ditt dokument',
+      CHAT_TIP_HUMAN         : 'Mänsklig jurist svarar inom 5 arbetsdagar',
 
       /* intro-modal */
       INTRO_TITLE : 'Välkommen till din dokumentportal',
@@ -611,6 +631,16 @@
       CHAT_DISCLAIMER   : 'This chat is not live. We aim to reply within 5 business days.',
       CHAT_EMPTY        : 'No messages yet. Send a message to start the conversation.',
       CHAT_NO_DOC_WARNING: 'Please open a document first to see related messages.',
+      
+      /* AI chat features */
+      AI_HELPFUL_BTN         : 'Was this helpful?',
+      AI_ESCALATE_BTN        : 'Ask lawyer',
+      AI_FEEDBACK_THANKS     : 'Thanks for feedback!',
+      AI_ESCALATED           : 'Forwarded to lawyer',
+      AI_ESCALATED_MESSAGE   : 'This question has been sent to our lawyers. We will respond within 5 business days.',
+      CHAT_HEADER_AI         : 'AI assistant',
+      CHAT_TIP_AI            : 'AI responds instantly based on your document',
+      CHAT_TIP_HUMAN         : 'Human lawyer responds within 5 business days',
 
       /* intro modal */
       INTRO_TITLE : 'Welcome to your document portal',
