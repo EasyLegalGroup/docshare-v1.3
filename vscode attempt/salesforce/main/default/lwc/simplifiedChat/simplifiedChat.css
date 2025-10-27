@@ -1,0 +1,162 @@
+/* Container ---------------------------------------------------------------- */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d9dbdd;
+    border-radius: 8px;
+    background-color: #ffffff;
+    font-family: 'Salesforce Sans', Arial, sans-serif;
+    height: 400px;            /* default; overridden by JS */
+}
+
+/* Messages pane ------------------------------------------------------------ */
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: calc(100% - 80px);   /* reserve space for input */
+    background-color: #f7f9fb;
+}
+
+/* Alignment wrappers ------------------------------------------------------- */
+.message-left  { 
+    display: flex; 
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1rem; 
+}
+
+.message-right { 
+    display: flex; 
+    flex-direction: column;
+    align-items: flex-end;
+    margin-bottom: 1rem; 
+}
+
+/* Message bubble ----------------------------------------------------------- */
+.message-bubble {
+    max-width: 70%;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    word-wrap: break-word;
+}
+
+.message-left  .message-bubble { background-color: #e5e5e5; color: #181818; border-bottom-left-radius: 4px; }
+.message-right .message-bubble { background-color: #0176d3; color: #ffffff; border-bottom-right-radius: 4px; }
+
+/* Contents ----------------------------------------------------------------- */
+.message-content { margin-bottom: 0.25rem; }
+
+/* Interaction pills (positioned OUTSIDE bubble) ---------------------------- */
+.interaction-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+    margin-bottom: 0.25rem;
+}
+
+.message-left .interaction-pills {
+    justify-content: flex-start;
+}
+
+.message-right .interaction-pills {
+    justify-content: flex-end;
+}
+
+.interaction-pills lightning-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 0.25rem 0.5rem;
+}
+
+/* INBOUND pills (routing: Asked Human, Asked AI, Switched to AI, Escalated to Human, Tried AI) */
+.interaction-pills .pill-asked-human { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.interaction-pills .pill-asked-ai { 
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.interaction-pills .pill-switched-ai { 
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.interaction-pills .pill-escalated-human { 
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+.interaction-pills .pill-tried-ai { 
+    background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
+    color: white;
+    font-style: italic;
+}
+
+/* OUTBOUND pills (author: Written by AI, Written by Human, Helpful) */
+.interaction-pills .pill-written-ai { 
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #1a1a1a;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(168, 237, 234, 0.4);
+}
+
+.interaction-pills .pill-written-human { 
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.interaction-pills .pill-helpful { 
+    background-color: #2e844a;
+    color: white;
+}
+
+.interaction-pills .pill-routed-agent { 
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    font-weight: 600;
+}
+
+/* AI metadata -------------------------------------------------------------- */
+.ai-info {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+.message-meta {
+    font-size: 0.75rem;
+    opacity : 0.8;
+    display : flex;
+    justify-content: space-between;
+    align-items   : center;
+}
+
+.message-label { font-weight: 600; }
+.message-time  { font-style: italic; }
+
+/* Empty state -------------------------------------------------------------- */
+.empty-state {
+    text-align: center;
+    color: #706e6b;
+    margin-top: 2rem;
+    font-style: italic;
+}
+
+/* Input row ---------------------------------------------------------------- */
+.chat-input {
+    border-top: 1px solid #d9dbdd;
+    padding: 1rem;
+    background-color: #ffffff;
+}
+
+.input-container { display: flex; gap: 0.5rem; align-items: flex-end; }
+.message-input   { flex: 1; }
+.send-button     { flex-shrink: 0; }

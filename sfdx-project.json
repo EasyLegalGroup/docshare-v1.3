@@ -1,0 +1,12 @@
+{
+  "packageDirectories": [
+    {
+      "path": "vscode attempt/salesforce",
+      "default": true
+    }
+  ],
+  "name": "docshare-v1.3",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "60.0"
+}

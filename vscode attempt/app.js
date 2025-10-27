@@ -849,6 +849,44 @@ function renderChat(scrollToMsgId = null){
     return;
   }
   box.innerHTML='';
+  
+  // Find the last AI message (for feedback buttons) and last user message (for Ask AI button)
+  let lastAIMessageId = null;
+  let lastUserMessageId = null;
+  
+  for (let i = chatCache.length - 1; i >= 0; i--) {
+    const m = chatCache[i];
+    const isAI = (m.messageType === 'AI' || m.Message_Type__c === 'AI');
+    const isInbound = (m.inbound || m.Is_Inbound__c);
+    const isUserMessage = isInbound && !isAI && m.messageType !== 'System';
+    const targetChanged = m.Target_Changed__c || false;
+    const finalTarget = m.Final_Target__c || '';
+    
+    // Find last AI message that can receive feedback
+    // Show feedback buttons ONLY if:
+    // - It's an AI message
+    // - Not already given feedback
+    // - If target was changed to AI (Target_Changed=true, Final_Target=AI), still allow escalation
+    if (!lastAIMessageId && isAI && !m.isThinking && !m.aiHelpful && !m.aiEscalated && !m.AI_Helpful__c && !m.AI_Escalated__c) {
+      lastAIMessageId = m.id;
+    }
+    
+    // Find last user message that can ask AI
+    // Show "Ask AI" button ONLY if:
+    // - It's a user message in human mode
+    // - Not already asked AI
+    // - NOT if Target_Changed=true and Final_Target=Human (prevent going in circles)
+    if (!lastUserMessageId && isUserMessage && chatMode === 'human' && !m.askedAI) {
+      // Don't show if they already escalated to human (prevent circular routing)
+      if (!(targetChanged && finalTarget === 'Human')) {
+        lastUserMessageId = m.id;
+      }
+    }
+    
+    // Break early if we found both
+    if (lastAIMessageId && lastUserMessageId) break;
+  }
+  
   chatCache.forEach(m=>{
     const isAI = (m.messageType === 'AI' || m.Message_Type__c === 'AI');
     const isThinking = m.isThinking || m.messageType === 'AI-thinking';
@@ -868,20 +906,20 @@ function renderChat(scrollToMsgId = null){
     
     wrap.appendChild(row);
     
-    // Add AI feedback buttons OUTSIDE the bubble (underneath)
-    if (isAI && !isThinking && !m.aiHelpful && !m.aiEscalated && !m.AI_Helpful__c && !m.AI_Escalated__c) {
+    // Add AI feedback buttons OUTSIDE the bubble (underneath) - ONLY ON LAST AI MESSAGE
+    if (isAI && !isThinking && !m.aiHelpful && !m.aiEscalated && !m.AI_Helpful__c && !m.AI_Escalated__c && m.id === lastAIMessageId) {
       const feedback = document.createElement('div');
       feedback.className = 'ai-feedback';
       feedback.innerHTML = `
-        <button class="feedback-btn helpful" data-id="${m.id}" onclick="handleAIFeedback('${m.id}', 'helpful')">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-            <path d="M20 6L9 17l-5-5"/>
+        <button class="feedback-btn helpful" data-id="${m.id}" aria-label="${_t_safe('AI_HELPFUL_BTN')}" title="${_t_safe('AI_HELPFUL_BTN')}" onclick="handleAIFeedback('${m.id}', 'helpful')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           ${_t_safe('AI_HELPFUL_BTN')}
         </button>
-        <button class="feedback-btn escalate" data-id="${m.id}" onclick="handleAIFeedback('${m.id}', 'escalate')">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M7 17L17 7M17 7H7M17 7v10"/>
+        <button class="feedback-btn escalate" data-id="${m.id}" aria-label="${_t_safe('AI_ESCALATE_BTN')}" title="${_t_safe('AI_ESCALATE_BTN')}" onclick="handleAIFeedback('${m.id}', 'escalate')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M7 17L17 7M17 7H7M17 7v10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           ${_t_safe('AI_ESCALATE_BTN')}
         </button>
@@ -891,8 +929,8 @@ function renderChat(scrollToMsgId = null){
       const thanks = document.createElement('div');
       thanks.className = 'ai-feedback-done';
       thanks.innerHTML = `
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:#22c55e;">
-          <path d="M20 6L9 17l-5-5"/>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="color:#22c55e;"/>
         </svg>
         ${_t_safe('AI_FEEDBACK_THANKS')}
       `;
@@ -901,23 +939,22 @@ function renderChat(scrollToMsgId = null){
       const escalated = document.createElement('div');
       escalated.className = 'ai-feedback-done';
       escalated.innerHTML = `
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:#0369a1;">
-          <path d="M7 17L17 7M17 7H7M17 7v10"/>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M7 17L17 7M17 7H7M17 7v10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#0369a1;"/>
         </svg>
         ${_t_safe('AI_ESCALATED')}
       `;
       wrap.appendChild(escalated);
     }
     
-    // Add "Ask AI" button for human mode messages OUTSIDE the bubble (underneath)
-    // Show when: user's own message (inbound=true, right side), in human mode, not AI, not thinking, not system, not already asked
+    // Add "Ask AI" button for human mode messages OUTSIDE the bubble (underneath) - ONLY ON LAST USER MESSAGE
     const isUserMessage = isInbound && !isAI && !isThinking && m.messageType !== 'System';
-    if (isUserMessage && chatMode === 'human' && !m.askedAI) {
+    if (isUserMessage && chatMode === 'human' && !m.askedAI && m.id === lastUserMessageId) {
       const askAI = document.createElement('div');
       askAI.className = 'ask-ai-btn';
       askAI.innerHTML = `
-        <button onclick="askAIAboutMessage('${m.id}', \`${escapeHtml(m.body)}\`)">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+        <button aria-label="Spørg AI om denne besked" title="Spørg AI om denne besked" onclick="askAIAboutMessage('${m.id}', \`${escapeHtml(m.body)}\`)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M8 2a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0V6H6a1 1 0 110-2h1V3a1 1 0 011-1zm0 7a3 3 0 100 6 3 3 0 000-6z"/>
           </svg>
           Spørg AI?
@@ -998,6 +1035,7 @@ async function sendChat(){
       at: new Date().toISOString(),
       messageType: 'Human'
     });
+    chatSeen.add(userMsgId); // Mark as seen (will be updated with real ID later)
     
     // Add AI "thinking" placeholder
     const thinkingId = `thinking-${Date.now()}`;
@@ -1009,6 +1047,7 @@ async function sendChat(){
       messageType: 'AI-thinking',
       isThinking: true
     });
+    chatSeen.add(thinkingId); // Mark as seen (temporary, will be removed)
     
     ed.innerHTML='';
     renderChat();
@@ -1045,12 +1084,17 @@ async function sendChat(){
       
       // Remove thinking placeholder
       const thinkingIdx = chatCache.findIndex(m => m.id === thinkingId);
-      if (thinkingIdx !== -1) chatCache.splice(thinkingIdx, 1);
+      if (thinkingIdx !== -1) {
+        chatCache.splice(thinkingIdx, 1);
+        chatSeen.delete(thinkingId); // Also remove from seen set
+      }
       
       // Update user question with Salesforce ID
       const userMsg = chatCache.find(m => m.id === userMsgId);
       if (userMsg && j.inboundMessageId) {
+        chatSeen.delete(userMsgId); // Remove temp ID from seen
         userMsg.id = j.inboundMessageId;
+        chatSeen.add(j.inboundMessageId); // Mark real ID as seen
       }
       
       // Add AI response
@@ -1066,27 +1110,32 @@ async function sendChat(){
         aiHelpful: false,
         aiEscalated: false
       });
+      chatSeen.add(aiMsgId); // Mark as seen to prevent duplicate
       
       ed.setAttribute('contenteditable','true');
       renderChat(aiMsgId); // Pass AI message ID to scroll to it
       
     } catch(e) {
       console.error('AI chat error:', e);
-      
       // Remove thinking placeholder
       const thinkingIdx = chatCache.findIndex(m => m.id === thinkingId);
-      if (thinkingIdx !== -1) chatCache.splice(thinkingIdx, 1);
+      if (thinkingIdx !== -1) {
+        chatCache.splice(thinkingIdx, 1);
+        chatSeen.delete(thinkingId); // Also remove from seen set
+      }
       
       ed.setAttribute('contenteditable','true');
       
       // Show error in chat
+      const errorMsgId = `err-${Date.now()}`;
       chatCache.push({
-        id: `err-${Date.now()}`,
+        id: errorMsgId,
         body: `❌ AI Fejl: ${e.message || 'Kunne ikke behandle spørgsmålet'}`,
         inbound: false,
         at: new Date().toISOString(),
         messageType: 'System'
       });
+      chatSeen.add(errorMsgId); // Mark as seen
       renderChat();
     }
   } else {
@@ -1177,20 +1226,22 @@ async function handleAIFeedback(messageId, action) {
         if ($('modeHuman')) $('modeHuman').classList.add('active');
         if ($('modeAI')) $('modeAI').classList.remove('active');
         
-        // Update header
-        const header = $('chatHeader');
-        if (header) {
-          header.textContent = _t_safe('CHAT_HEADER');
+        // Update header title ONLY (do not wipe actions)
+        const headerTitle = document.querySelector('#chatHeader .chat-header-title');
+        if (headerTitle) {
+          headerTitle.textContent = _t_safe('CHAT_HEADER');
         }
         
         // Add system message about escalation
+        const systemMsgId = 'system-' + Date.now();
         chatCache.push({
-          id: 'system-' + Date.now(),
+          id: systemMsgId,
           body: `<em style="color:#888;">${_t_safe('AI_ESCALATED_MESSAGE')}</em>`,
           at: new Date().toISOString(),
           inbound: false,
           messageType: 'System'
         });
+        chatSeen.add(systemMsgId); // Mark as seen
       }
     }
     
@@ -1232,22 +1283,24 @@ async function askAIAboutMessage(messageId, messageBody) {
     if ($('modeAI')) $('modeAI').classList.add('active');
     if ($('modeHuman')) $('modeHuman').classList.remove('active');
     
-    // Update header
-    const header = $('chatHeader');
-    if (header) {
-      header.textContent = _t_safe('CHAT_HEADER_AI');
+    // Update header title ONLY (do not wipe actions)
+    const headerTitle = document.querySelector('#chatHeader .chat-header-title');
+    if (headerTitle) {
+      headerTitle.textContent = _t_safe('CHAT_HEADER_AI');
     }
     
     // Check if we have an active document
     if (active < 0 || active >= docs.length) {
       // No document selected - show error
+      const errorId = 'error-' + Date.now();
       chatCache.push({
-        id: 'error-' + Date.now(),
+        id: errorId,
         body: `<em style="color:#dc2626;">Vælg venligst et dokument for at bruge AI.</em>`,
         at: new Date().toISOString(),
         inbound: false,
         messageType: 'System'
       });
+      chatSeen.add(errorId); // Mark as seen
       renderChat();
       return;
     }
@@ -1255,51 +1308,53 @@ async function askAIAboutMessage(messageId, messageBody) {
     const currentDoc = docs[active];
     
     // Add thinking indicator (on LEFT side, from system)
+    const thinkingId = 'thinking-' + Date.now();
     chatCache.push({
-      id: 'thinking-' + Date.now(),
+      id: thinkingId,
       body: '<span class="ai-thinking">🤔 AI tænker<span class="dots"></span></span>',
       at: new Date().toISOString(),
       inbound: false,  // LEFT side
       messageType: 'AI-thinking',
       isThinking: true
     });
+    chatSeen.add(thinkingId); // Mark as seen (temporary)
     renderChat();
     
-    // Send to AI with routing metadata
-    const r = await fetch(`${API}/identifier/chat/ask`, {
+    // Send to switch-to-ai endpoint (updates the original message's routing)
+    const r = await fetch(`${API}/identifier/chat/switch-to-ai`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionToken}`
       },
       body: JSON.stringify({
+        messageId: messageId,  // ID of the original Human-targeted message
         journalId: selectedJournalId,
         documentId: currentDoc.id,
-        question: messageBody.replace(/<[^>]*>/g, ''),  // Strip HTML tags
-        brand: BRAND_KEY,
-        originalTarget: 'Human',
-        finalTarget: 'AI',
-        targetChanged: true
+        brand: BRAND_KEY
       })
     });
     
     const j = await r.json().catch(() => ({}));
     
-    // Remove thinking indicator (modify in place since chatCache is const)
-    const thinkingIdx = chatCache.findIndex(m => m.isThinking);
+    // Remove thinking indicator
+    const thinkingIdx = chatCache.findIndex(m => m.id === thinkingId);
     if (thinkingIdx !== -1) {
       chatCache.splice(thinkingIdx, 1);
+      chatSeen.delete(thinkingId); // Also remove from seen set
     }
     
     if (!r.ok) {
       console.error('Ask AI failed:', j.error || 'Request failed');
+      const errorId = 'error-' + Date.now();
       chatCache.push({
-        id: 'error-' + Date.now(),
+        id: errorId,
         body: `<em style="color:#dc2626;">${j.error || 'Der opstod en fejl. Prøv igen.'}</em>`,
         at: new Date().toISOString(),
         inbound: false,
         messageType: 'System'
       });
+      chatSeen.add(errorId); // Mark as seen
       renderChat();
       return;
     }
@@ -1315,6 +1370,8 @@ async function askAIAboutMessage(messageId, messageBody) {
         messageType: 'AI',
         fromAI: true
       });
+      // Mark as seen to prevent duplicate when fetchChat() runs
+      chatSeen.add(aiMsgId);
     }
     
     renderChat();
@@ -1325,15 +1382,19 @@ async function askAIAboutMessage(messageId, messageBody) {
     console.error('Ask AI error:', e);
     const thinkingIdx = chatCache.findIndex(m => m.isThinking);
     if (thinkingIdx !== -1) {
+      const thinkingMsgId = chatCache[thinkingIdx]?.id;
       chatCache.splice(thinkingIdx, 1);
+      if (thinkingMsgId) chatSeen.delete(thinkingMsgId); // Remove from seen set
     }
+    const errorId = 'error-' + Date.now();
     chatCache.push({
-      id: 'error-' + Date.now(),
+      id: errorId,
       body: `<em style="color:#dc2626;">Der opstod en fejl. Prøv igen.</em>`,
       at: new Date().toISOString(),
       inbound: false,
       messageType: 'System'
     });
+    chatSeen.add(errorId); // Mark as seen
     renderChat();
   }
 }
@@ -1348,7 +1409,11 @@ function openChatPanel(source='user'){
   const panel=$('chatPanel'), header=$('chatHeader'), pillBtn=$('chatPillBtn');
   if (!panel || !header) return;
   
-  panel.style.display='flex'; panel.classList.remove('hidden'); header.textContent = _t_safe('CHAT_HEADER_OPEN');
+  panel.style.display='flex';
+  panel.classList.remove('hidden');
+  // Update ONLY the title text; keep actions intact
+  const headerTitle = header.querySelector('.chat-header-title');
+  if (headerTitle) headerTitle.textContent = _t_safe('CHAT_HEADER_OPEN');
   
   // Hide chat pill button when chat is open
   if (pillBtn) pillBtn.style.display = 'none';
@@ -1364,24 +1429,36 @@ function openChatPanel(source='user'){
 function closeChatPanel(){
   const panel=$('chatPanel'), header=$('chatHeader'), pillBtn=$('chatPillBtn');
   if (!panel || !header) return;
-  panel.style.display='none'; panel.classList.add('hidden'); header.textContent = _t_safe('CHAT_HEADER');
+  panel.style.display='none';
+  panel.classList.add('hidden');
+  // Update ONLY the title text; keep actions intact
+  const headerTitle = header.querySelector('.chat-header-title');
+  if (headerTitle) headerTitle.textContent = _t_safe('CHAT_HEADER');
   
   // Show chat pill button when chat is closed
   if (pillBtn) pillBtn.style.display = 'inline-flex';
 }
 
 if ($('chatPillBtn'))    $('chatPillBtn').onclick=()=>{ if($('chatPanel')?.style.display==='flex'){ closeChatPanel(); } else { openChatPanel('user'); } };
-if ($('chatHeader')) $('chatHeader').onclick=()=>{ if($('chatPanel')?.style.display==='flex'){ closeChatPanel(); } };
+
+// Make header click close chat, but NOT when clicking inside actions (e.g. expand)
+if ($('chatHeader')) $('chatHeader').onclick=(e)=>{
+  if (e.target.closest('.chat-header-actions')) return; // ignore clicks on action buttons
+  if($('chatPanel')?.style.display==='flex'){ closeChatPanel(); }
+};
+
 if ($('chatSend'))   $('chatSend').onclick=sendChat;
 if ($('chatEditor')) $('chatEditor').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.ctrlKey) sendChat(); });
 
 /* Chat mode toggle */
-let chatMode = 'ai'; // 'ai' or 'human'
+let chatMode = 'human'; // 'ai' or 'human' - default to human mode
 if ($('modeAI')) {
   $('modeAI').onclick = () => {
     chatMode = 'ai';
     $('modeAI').classList.add('active');
     $('modeHuman').classList.remove('active');
+    const headerTitle = document.querySelector('#chatHeader .chat-header-title');
+    if (headerTitle) headerTitle.textContent = _t_safe('CHAT_HEADER_AI');
   };
 }
 if ($('modeHuman')) {
@@ -1389,30 +1466,38 @@ if ($('modeHuman')) {
     chatMode = 'human';
     $('modeHuman').classList.add('active');
     $('modeAI').classList.remove('active');
+    const headerTitle = document.querySelector('#chatHeader .chat-header-title');
+    if (headerTitle) headerTitle.textContent = _t_safe('CHAT_HEADER');
   };
 }
 
 /* Chat expand/collapse */
 if ($('chatExpandBtn')) {
-  $('chatExpandBtn').onclick = () => {
+  $('chatExpandBtn').onclick = (e) => {
+    // Prevent header's click-to-close from firing
+    e.stopPropagation();
+
     const panel = $('chatPanel');
     if (panel) {
       panel.classList.toggle('expanded');
       const btn = $('chatExpandBtn');
-      const svg = btn.querySelector('svg');
-      
+      btn.setAttribute('aria-expanded', panel.classList.contains('expanded') ? 'true' : 'false');
+
+      const svgPath = btn.querySelector('svg path');
       if (panel.classList.contains('expanded')) {
         // Minimize icon
-        if (svg) {
-          svg.innerHTML = '<path d="M3 3v3h3M17 17h-3v-3M17 3h-3V6M3 17v-3h3" stroke="currentColor" stroke-width="2" fill="none"/>';
+        if (svgPath) {
+          svgPath.setAttribute('d','M3 3v3h3M17 17h-3v-3M17 3h-3V6M3 17v-3h3');
         }
         btn.setAttribute('title', 'Minimer chat');
+        btn.setAttribute('aria-label', 'Minimer chat');
       } else {
         // Expand icon
-        if (svg) {
-          svg.innerHTML = '<path d="M14 3h3v3M3 17v-3h3M17 14v3h-3M3 6V3h3" stroke="currentColor" stroke-width="2" fill="none"/>';
+        if (svgPath) {
+          svgPath.setAttribute('d','M14 3h3v3M3 17v-3h3M17 14v3h-3M3 6V3h3');
         }
         btn.setAttribute('title', 'Udvid chat');
+        btn.setAttribute('aria-label', 'Udvid chat');
       }
     }
   };

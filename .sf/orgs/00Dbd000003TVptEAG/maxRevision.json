@@ -1,0 +1,2412 @@
+{
+    "fileVersion": 0,
+    "serverMaxRevisionCounter": 13593,
+    "sourceMembers": {
+        "PermissionSet__sfdcInternalInt__sfdc_scrt2": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 4,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Service_Center1.sfdc_cms__view/tooManyRequests": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 75,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__AgentforceServiceAgentUserPsg": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 13500,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__Manage_ASC_Analytics": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 13499,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__CopilotSalesforceAdminPSG": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 68,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__CopilotSalesforceUserPSG": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 67,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__SalesUsers": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 72,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__GeneralUsers": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 684,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__Din_Familiejurist_Knowledge_Base1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 551,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__themeLayout/headerAndFooter": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 78,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/tooManyRequests": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 79,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/serviceNotAvailable": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 80,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/landingpage": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 81,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/home": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 82,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/checkPasswordResetEmail": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 83,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/nyhederDetail": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 84,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/login": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 85,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/forgotPassword": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 86,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__appPage/mainAppPage": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 87,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/error": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 88,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/lightningOut": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 89,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/Marketingdestinationssider1.sfdc_cms__view/register": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 90,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/ESW_Website_Chat_Din_Famil_17447411416251.sfdc_cms__view/error": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 91,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/ESW_Website_Chat_Din_Famil_17447411416251.sfdc_cms__view/serviceNotAvailable": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 92,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/ESW_Website_Chat_Din_Famil_17447411416251.sfdc_cms__view/home": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 93,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "DigitalExperience__site/ESW_Website_Chat_Din_Famil_17447411416251.sfdc_cms__view/newsDetail": {
+            "memberType": "DigitalExperience",
+            "serverRevisionCounter": 94,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Admin": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5614,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "ApexClass__DFJ_TimeFormatter": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 263,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DFJ_TimeFormatterTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 264,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Flow__Time_Zone_Formatter_Test": {
+            "memberType": "Flow",
+            "serverRevisionCounter": 253,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExternalCredential__MC_Rest": {
+            "memberType": "ExternalCredential",
+            "serverRevisionCounter": 164,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McRestClient": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 688,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsTransactional": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 696,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "ApexClass__McRestAndSmsTests": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 373,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Market_Unit_Time_Zone__mdt.Language_Code__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 262,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__Market_Unit_Time_Zone__mdt-Market Unit Time Zone Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 257,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomMetadata__Market_Unit_Time_Zone.DFJ_DK": {
+            "memberType": "CustomMetadata",
+            "serverRevisionCounter": 258,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomMetadata__Market_Unit_Time_Zone.Ireland": {
+            "memberType": "CustomMetadata",
+            "serverRevisionCounter": 259,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomMetadata__Market_Unit_Time_Zone.FA_SE": {
+            "memberType": "CustomMetadata",
+            "serverRevisionCounter": 260,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McRestClient_Tests": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 272,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "ApexClass__McRestClient_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 287,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsStatusPoller_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 381,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsSendQueue": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2265,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsSendQueue_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2268,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsStatusPoller": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 700,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsRouting": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 385,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsFlowEnqueue": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 289,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsFlowEnqueue_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 390,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Flow__RT_Outbound_SMS_Created": {
+            "memberType": "Flow",
+            "serverRevisionCounter": 317,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__GetAcceptListener Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2613,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Google Drive Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2614,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Event Booker": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5618,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Serviceagent": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5619,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Servicesupervisor": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5620,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Layout__McSmsRouting__mdt-MC SMS Routing Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 365,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Din Familiejurist Help Center Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2618,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Sales Agent": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5621,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__deactivated1 Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2621,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Advisor": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2622,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Invoice Receiver Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2623,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSet__sfdcInternalInt__sfdc_slack": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 5624,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__GAListener6 Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2625,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Incoming SMS Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2626,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__GetAccept Listener Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2627,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__ESW_Website_Chat_Din_Famil_1744741141625 Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2628,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Almost System Administrator": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5626,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__DK servicecenter Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2630,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSet__sfdcInternalInt__sfdc_a360_sfcrm_data_extract": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 2631,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Lecture Bookers": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5612,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Docfab Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2633,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Legal": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5613,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__DFJ Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2635,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__GAListen Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2636,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Supervisor": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5615,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Manager": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5616,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Read Only": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5617,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Portal Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2640,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Lawyer": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5623,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Service Center Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2642,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Intranet Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2643,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__GetAccept Listen Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2644,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Salesforce API Only System Integrations": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 5625,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Profile__Marketingdestinationssider Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2647,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Din Familiejurist Knowledge Base Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2648,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__Customers Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2649,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__McSmsRouting__mdt": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 355,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__McSmsRouting__mdt.DefinitionKey__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 360,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__McSmsRouting__mdt.CountryPrefix__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 356,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__McSmsRouting__mdt.CurrencyIsoCode__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 358,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__McSmsRouting__mdt.AlphaDefinitionKey__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 362,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__McSmsRouting__mdt.IsDefault__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 364,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomMetadata__McSmsRouting.DK": {
+            "memberType": "CustomMetadata",
+            "serverRevisionCounter": 2222,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomMetadata__McSmsRouting.SE": {
+            "memberType": "CustomMetadata",
+            "serverRevisionCounter": 2223,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Status__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6058,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsRouting_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 386,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__Customers1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 455,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__DK_servicecenter1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 475,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__Din_Familiejurist_Help_Center1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 495,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__Intranet1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 614,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__Portal1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 675,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__MarketingUsers": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 685,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McPhone": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 6064,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsStatusTools": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 703,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McPhone_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 6065,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsTransactionalBulk": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2323,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsTransactionalBulk_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2327,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsStatusTools_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 709,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Resource_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 803,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Verified_At__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 790,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Identifier_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 780,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__OTP__c-OTP Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 732,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__OTP__c": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 11626,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Related_Record_Id__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 778,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomTab__OTP__c": {
+            "memberType": "CustomTab",
+            "serverRevisionCounter": 755,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__OTP__c.All": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 11485,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Resource_Key__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 772,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Status__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 11647,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Attempt_Count__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 776,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Channel__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 782,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Sent_At__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 784,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Expires_At__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 786,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Key__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 788,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomIndex__OTP__c.Key__c": {
+            "memberType": "CustomIndex",
+            "serverRevisionCounter": 799,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Resend_Count__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 792,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Identifier_Value__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 794,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Brand__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 796,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Code__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 798,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__OTP__c.Purpose__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 11420,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ValidationRule__OTP__c.Code_6_digits": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 809,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSet__Integration_Cancellation_Portal": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 810,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__Inbound_SMS_Auth__mdt-Inbound SMS Auth Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 852,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__Inbound_SMS_Auth__mdt": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 848,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Inbound_SMS_Auth__mdt.Active__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 849,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Inbound_SMS_Auth__mdt.Shared_Secret__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 851,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomMetadata__Inbound_SMS_Auth.Default_Auth": {
+            "memberType": "CustomMetadata",
+            "serverRevisionCounter": 1251,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__LightningSelfRegisterController": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 859,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__LightningForgotPasswordController": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 861,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__LightningLoginFormController": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 863,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__LightningLoginFormControllerTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 865,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__LightningForgotPasswordControllerTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 867,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__LightningSelfRegisterControllerTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 869,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinitionBundle__setExpId": {
+            "memberType": "AuraDefinitionBundle",
+            "serverRevisionCounter": 873,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__setExpId/setExpId.evt": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 871,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinitionBundle__setStartUrl": {
+            "memberType": "AuraDefinitionBundle",
+            "serverRevisionCounter": 877,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__setStartUrl/setStartUrl.evt": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 875,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinitionBundle__loginForm": {
+            "memberType": "AuraDefinitionBundle",
+            "serverRevisionCounter": 889,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__loginForm/loginForm.cmp": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 879,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__loginForm/loginFormController.js": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 881,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__loginForm/loginFormHelper.js": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 883,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__loginForm/loginForm.css": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 885,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__loginForm/loginForm.design": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 887,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinitionBundle__selfRegister": {
+            "memberType": "AuraDefinitionBundle",
+            "serverRevisionCounter": 901,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__selfRegister/selfRegister.cmp": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 891,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__selfRegister/selfRegisterController.js": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 893,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__selfRegister/selfRegisterHelper.js": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 895,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__selfRegister/selfRegister.css": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 897,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__selfRegister/selfRegister.design": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 899,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinitionBundle__forgotPassword": {
+            "memberType": "AuraDefinitionBundle",
+            "serverRevisionCounter": 913,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__forgotPassword/forgotPassword.cmp": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 903,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__forgotPassword/forgotPasswordController.js": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 905,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__forgotPassword/forgotPasswordHelper.js": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 907,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__forgotPassword/forgotPassword.css": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 909,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AuraDefinition__forgotPassword/forgotPassword.design": {
+            "memberType": "AuraDefinition",
+            "serverRevisionCounter": 911,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Profile__MC Inbound SMS Profile": {
+            "memberType": "Profile",
+            "serverRevisionCounter": 2645,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomSite__MC_Inbound_SMS": {
+            "memberType": "CustomSite",
+            "serverRevisionCounter": 931,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "AppMenu__AppSwitcher": {
+            "memberType": "AppMenu",
+            "serverRevisionCounter": 11421,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "NetworkBranding__cbMC_Inbound_SMS": {
+            "memberType": "NetworkBranding",
+            "serverRevisionCounter": 933,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "NavigationMenu__Default_Navigation10": {
+            "memberType": "NavigationMenu",
+            "serverRevisionCounter": 935,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Audience__Default9": {
+            "memberType": "Audience",
+            "serverRevisionCounter": 937,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Network__MC Inbound SMS": {
+            "memberType": "Network",
+            "serverRevisionCounter": 940,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "SiteDotCom__MC_Inbound_SMS1": {
+            "memberType": "SiteDotCom",
+            "serverRevisionCounter": 941,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Keyword__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 947,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__SMS__c-SMS Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 9897,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__SMS_Record_Page": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 10084,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Raw_Response__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 1085,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__MC_InboundSMS_API": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2290,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__MC_InboundSMS_API_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2291,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__MC_InboundSMS_API_Handshake_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2278,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__MC_InboundSMS_API_Verify_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2289,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__KeywordMatchAction": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 1757,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS_Conversation__c.Is_Keyword_Reply_Expected__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 1261,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__SMS_Conversation__c-SMS Conversation Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 1577,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__SMS_Conversation_Record_Page": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 1734,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS_Conversation__c.Valid_Keywords__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 1418,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS_Conversation__c.Related_Record_ID__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 1576,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__KeywordMatchActionTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 1758,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Flow__Keyword_test": {
+            "memberType": "Flow",
+            "serverRevisionCounter": 1754,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Segments__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2043,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Encoding__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 1901,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Non_Standard_Characters__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 1902,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__SMSSegmentUtil": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2191,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__SMSTriggerHandler": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2188,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__SMSSegmentUtilTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2199,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__SMSTriggerTest": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2198,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexTrigger__SMSTrigger": {
+            "memberType": "ApexTrigger",
+            "serverRevisionCounter": 2197,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSetGroup__force__ScaleCenterUsers": {
+            "memberType": "PermissionSetGroup",
+            "serverRevisionCounter": 2202,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__SMS__c.All": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 11473,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__McSmsTransactionalBulk_Extended_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 2326,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Requires_Email_on_Approval__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2680,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "ValidationRule__Wrap_up_Email_Rule__mdt.Completion_Email_Template_Required": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 2694,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__EmailMessage.Shared_Document__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2342,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__EmailMessage": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 2341,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__EmailMessage-Email Message Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 2343,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Leads_with_Emails": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 2357,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Is_Wrap_Up_Email_Required__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 3816,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Layout__Shared_Document__c-Shared Document Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 11000,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__Shared_Document_Record_Page": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 11285,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__Wrap_up_Email_Rule__mdt-Wrap-up Email Rule Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 2675,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomObject__Wrap_up_Email_Rule__mdt": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 2673,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Document_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2678,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Requires_Email__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2661,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Email_Template_Developer_Name__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2666,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Requires_Email_on_Completion__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2688,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Requires_Public_Registration__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2684,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Market_Unit__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2686,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Approval_Email_Template_Developer_Name__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2682,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Wrap_up_Email_Rule__mdt.Completion_Email_Template_Developer_Name__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2690,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "ValidationRule__Wrap_up_Email_Rule__mdt.Approval_Email_Template_Required": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 2692,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Shared_Document__c.Public_Registration_Status__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 4738,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Is_Completion_Email_Required__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 3834,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__Document_Approval_Email_Rule__mdt": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 2674,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__Document_Approval_Email_Rule__mdt-Wrap-up Email Rule Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 2696,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomObjectTranslation__Document_Approval_Email_Rule__mdt-da": {
+            "memberType": "CustomObjectTranslation",
+            "serverRevisionCounter": 2677,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Document_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2702,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Requires_Email_on_Approval__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2681,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Approval_Email_Template_Developer_Name__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2704,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Requires_Public_Registration__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2685,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Market_Unit__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2687,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Requires_Email_on_Completion__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2689,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Document_Approval_Email_Rule__mdt.Completion_Email_Template_Developer_Name__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2706,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ValidationRule__Document_Approval_Email_Rule__mdt.Approval_Email_Template_Required": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 2693,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ValidationRule__Document_Approval_Email_Rule__mdt.Completion_Email_Template_Required": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 2695,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__Document_Approval_Email_Rule__mdt-Document Approval Email Rule Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 2697,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Is_Approval_Required__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 4456,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Shared_Document__c.Document_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2699,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "EmailTemplate__DanishFinalizationEmails/DK_begunstigelseserklring_1710317355965": {
+            "memberType": "EmailTemplate",
+            "serverRevisionCounter": 2700,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__Document_Approval_Email_Rule__mdt.Irish_Rules": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 2713,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__Document_Approval_Email_Rule__mdt.Swedish_Rules": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 2716,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__Document_Approval_Email_Rule__mdt.Danish_Rules": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 2719,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__Document_Approval_Email_Rule__mdt.Danish_Rules_with_Email_Requirements": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 2722,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Approval_Email_Status__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 2724,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Completion_Email_Status__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 5627,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSet__DocShareService": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 5622,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "GlobalValueSet__Shared_Document_Email_Status": {
+            "memberType": "GlobalValueSet",
+            "serverRevisionCounter": 3504,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Flow__RT_Shared_Document_When_Created_or_Document_Type_is_Changed": {
+            "memberType": "Flow",
+            "serverRevisionCounter": 6039,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Is_Public_Registration_Required__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 4107,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Is_Approval_Email_Required__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 4473,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Flow__RT_Shared_Document_Updated_to_Approved": {
+            "memberType": "Flow",
+            "serverRevisionCounter": 5996,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "GlobalValueSet__Document_Type": {
+            "memberType": "GlobalValueSet",
+            "serverRevisionCounter": 6005,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Character_Count__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6048,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Contact__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6049,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__SMS__c": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 6075,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.External_ID__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6051,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.From_Phone__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6052,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Full_Response__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6053,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Market_Unit__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6054,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Send_From__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6055,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Sender_Label__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6056,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Sender__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6057,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.To_Phone__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6059,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Twilio_Message__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 6060,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DFJ_ChatComponent_Apex": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 10948,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DFJ_ChatComponent_Apex_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 10947,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__dFJ_ChatComponent": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11461,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ChatComponent/dFJ_ChatComponent.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11462,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ChatComponent/dFJ_ChatComponent.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11463,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ChatComponent/dFJ_ChatComponent.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11464,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ChatComponent/dFJ_ChatComponent.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11465,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__dFJ_ModalToShowListOfEmailTemplates": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 9891,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ModalToShowListOfEmailTemplates/dFJ_ModalToShowListOfEmailTemplates.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 9892,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ModalToShowListOfEmailTemplates/dFJ_ModalToShowListOfEmailTemplates.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 9893,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ModalToShowListOfEmailTemplates/dFJ_ModalToShowListOfEmailTemplates.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 9894,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ValidationRule__SMS__c.Record_ID_Prefix_Validation": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 6076,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ValidationRule__SMS__c.Require_Sender_ID_when_enabled": {
+            "memberType": "ValidationRule",
+            "serverRevisionCounter": 6077,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__SMS__c.Mathias_Playground": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 10164,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__SMS__c.Received_Messages": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 6080,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__SMS__c.Successfully_Sent_Messages": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 6081,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__SMS__c.Twilio_Transformations": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 6082,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Flow__AL_Create_Outbound_SMS": {
+            "memberType": "Flow",
+            "serverRevisionCounter": 6083,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__Lead_Pinned_Layout": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 7734,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSet__SMS_Window_Admin_Access": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 7921,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__dFJ_ModalToShowListOfEmailTemplates/dFJ_ModalToShowListOfEmailTemplates.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 9895,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__Business_Contact_Page": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 8260,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__PersonAccount_Pinned_Layout": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 10903,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__SMS__c.Is_Read__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 9896,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DocShare_Query": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 11001,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Shared_Document__c.Sort_Order__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 10999,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Journal__c.Document_Order__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 10998,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "Layout__Journal__c-Journal Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 11390,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Accounts_with_journals": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11391,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Account_order_order_products_journal": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11392,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_journals_dk": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11393,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_GetAccept_Documents": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11394,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_DocFab_Persons": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11395,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journal_with_Journal_2_0": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11396,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11397,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_account_or_lead_info": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11398,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Account_with_Order_and_Journal": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11399,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Account_with_Order_and_Journal_Journal_DK": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11400,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Assets": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11401,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Accounts_with_Journals_and_Orders": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11402,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Orders_Products": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11403,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journal_2_0s_Persons_and_Fuldm_gtige": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11404,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Journal_2_0_with_Persons_with_Fuldm": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11405,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Journal_2_0_with_Persons": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11406,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Order_with_Journal": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11407,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_2_0s": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11408,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Persons": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11409,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Accounts_with_Journals_DocfabJournals_and_Persons": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11410,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Accounts_and_Leads": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11411,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journal_with_account": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11412,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Accounts_with_Journeys": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11413,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journal_DK_orders": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11414,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Journals_with_Journal_2_0": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11415,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ReportType__Accounts_Orders_Journals_and_Journal_DKs": {
+            "memberType": "ReportType",
+            "serverRevisionCounter": 11418,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DocShare_Query_Test": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 11002,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DocShareService": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 13557,
+            "lastRetrievedFromServer": 13557,
+            "isNameObsolete": false
+        },
+        "ApexClass__DocShareService_Coverage": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 11004,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__DocShareService_Tests": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 11005,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExternalClientApplication__DFJ_Doc_Presigner": {
+            "memberType": "ExternalClientApplication",
+            "serverRevisionCounter": 11306,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppConfigurablePolicies__DFJ_Doc_Presigner_plcy": {
+            "memberType": "ExtlClntAppConfigurablePolicies",
+            "serverRevisionCounter": 11307,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppOauthSettings__DFJ_Doc_Presigner_oauth": {
+            "memberType": "ExtlClntAppOauthSettings",
+            "serverRevisionCounter": 11308,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppGlobalOauthSettings__DFJ_Doc_Presigner_glbloauth": {
+            "memberType": "ExtlClntAppGlobalOauthSettings",
+            "serverRevisionCounter": 11309,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppOauthConfigurablePolicies__DFJ_Doc_Presigner_oauthPlcy": {
+            "memberType": "ExtlClntAppOauthConfigurablePolicies",
+            "serverRevisionCounter": 11310,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomLabel__DocShare_ApiBase": {
+            "memberType": "CustomLabel",
+            "serverRevisionCounter": 11370,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__itSupportCenter": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11319,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__itSupportCenter/itSupportCenter.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11320,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__itSupportCenter/itSupportCenter.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11321,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__itSupportCenter/itSupportCenter.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11322,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__itSupportCenter/itSupportCenter.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11323,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__nagivationMenu": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11324,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__nagivationMenu/nagivationMenu.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11325,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__nagivationMenu/nagivationMenu.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11326,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__nagivationMenu/nagivationMenu.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11327,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__pS_EnhancedCreatePayment": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11328,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_EnhancedCreatePayment/pS_EnhancedCreatePayment.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11329,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_EnhancedCreatePayment/pS_EnhancedCreatePayment.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11330,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_EnhancedCreatePayment/pS_EnhancedCreatePayment.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11331,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_EnhancedCreatePayment/pS_EnhancedCreatePayment.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11332,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__pS_OrderCreationService": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11333,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_OrderCreationService/pS_OrderCreationService.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11334,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_OrderCreationService/pS_OrderCreationService.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11335,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_OrderCreationService/pS_OrderCreationService.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11336,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__pS_OrderCreationService/pS_OrderCreationService.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11337,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__quickAppSwitcherDt": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11338,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__quickAppSwitcherDt/quickAppSwitcherDt.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11339,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__quickAppSwitcherDt/quickAppSwitcherDt.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11340,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__quickAppSwitcherDt/quickAppSwitcherDt.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11341,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__quickAppSwitcherDt/quickAppSwitcherDt.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11342,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__screenFlowLauncher": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11343,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__screenFlowLauncher/screenFlowLauncher.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11344,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__screenFlowLauncher/screenFlowLauncher.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11345,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__screenFlowLauncher/screenFlowLauncher.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11346,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__sfmcDataViewer": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11347,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcDataViewer/sfmcDataViewer.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11348,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcDataViewer/sfmcDataViewer.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11349,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcDataViewer/sfmcDataViewer.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11350,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__sfmcEmailEngagement": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11351,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcEmailEngagement/sfmcEmailEngagement.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11352,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcEmailEngagement/sfmcEmailEngagement.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11353,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcEmailEngagement/sfmcEmailEngagement.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11354,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__sfmcEmailEngagement/sfmcEmailEngagement.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11355,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__unifiedChat": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 11356,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__unifiedChat/unifiedChat.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11357,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__unifiedChat/unifiedChat.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11358,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__unifiedChat/unifiedChat.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11359,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__unifiedChat/unifiedChat.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 11360,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__journalDocConsole": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 13558,
+            "lastRetrievedFromServer": 13558,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__journalDocConsole/journalDocConsole.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13559,
+            "lastRetrievedFromServer": 13559,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__journalDocConsole/journalDocConsole.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13560,
+            "lastRetrievedFromServer": 13560,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__journalDocConsole/journalDocConsole.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13561,
+            "lastRetrievedFromServer": 13561,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__journalDocConsole/journalDocConsole.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13562,
+            "lastRetrievedFromServer": 13562,
+            "isNameObsolete": false
+        },
+        "CorsWhitelistOrigin__https_21tpssexjd_execute_api_eu_north_1_amazonaws_com": {
+            "memberType": "CorsWhitelistOrigin",
+            "serverRevisionCounter": 11381,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__Journal__c.Identifier_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 11416,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": true
+        },
+        "CustomField__Journal__c.OTP_Medium__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 11419,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExternalClientApplication__DocShare": {
+            "memberType": "ExternalClientApplication",
+            "serverRevisionCounter": 11491,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppConfigurablePolicies__DocShare_plcy": {
+            "memberType": "ExtlClntAppConfigurablePolicies",
+            "serverRevisionCounter": 11492,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppOauthSettings__DocShare_oauth": {
+            "memberType": "ExtlClntAppOauthSettings",
+            "serverRevisionCounter": 11493,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppGlobalOauthSettings__DocShare_glbloauth": {
+            "memberType": "ExtlClntAppGlobalOauthSettings",
+            "serverRevisionCounter": 11494,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ExtlClntAppOauthConfigurablePolicies__DocShare_oauthPlcy": {
+            "memberType": "ExtlClntAppOauthConfigurablePolicies",
+            "serverRevisionCounter": 11495,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "PermissionSet__Integration_Customer_Document_Portal": {
+            "memberType": "PermissionSet",
+            "serverRevisionCounter": 11700,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__One_Time_Password_Record_Page": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 11624,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.Message_Type__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 11847,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "Layout__ChatMessage__c-Chat Message Layout": {
+            "memberType": "Layout",
+            "serverRevisionCounter": 13306,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "FlexiPage__Chat_Message_Record_Page": {
+            "memberType": "FlexiPage",
+            "serverRevisionCounter": 13486,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.AI_Model__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 12021,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.AI_Helpful__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 12196,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.AI_Escalated__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 12372,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.AI_Response_Time__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 12549,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.Escalated_From__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 12729,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomObject__ChatMessage__c": {
+            "memberType": "CustomObject",
+            "serverRevisionCounter": 12728,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ListView__ChatMessage__c.All": {
+            "memberType": "ListView",
+            "serverRevisionCounter": 12934,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.Original_Target__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 12939,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.Final_Target__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 13119,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "CustomField__ChatMessage__c.Target_Changed__c": {
+            "memberType": "CustomField",
+            "serverRevisionCounter": 13305,
+            "lastRetrievedFromServer": null,
+            "isNameObsolete": false
+        },
+        "ApexClass__SimplifiedChatService": {
+            "memberType": "ApexClass",
+            "serverRevisionCounter": 13549,
+            "lastRetrievedFromServer": 13549,
+            "isNameObsolete": false
+        },
+        "LightningComponentBundle__simplifiedChat": {
+            "memberType": "LightningComponentBundle",
+            "serverRevisionCounter": 13589,
+            "lastRetrievedFromServer": 13589,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__simplifiedChat/simplifiedChat.html": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13590,
+            "lastRetrievedFromServer": 13590,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__simplifiedChat/simplifiedChat.js-meta.xml": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13591,
+            "lastRetrievedFromServer": 13591,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__simplifiedChat/simplifiedChat.js": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13592,
+            "lastRetrievedFromServer": 13592,
+            "isNameObsolete": false
+        },
+        "LightningComponentResource__simplifiedChat/simplifiedChat.css": {
+            "memberType": "LightningComponentResource",
+            "serverRevisionCounter": 13593,
+            "lastRetrievedFromServer": 13593,
+            "isNameObsolete": false
+        }
+    }
+}

@@ -1511,7 +1511,8 @@ def handle_identifier_chat_list(event, data):
         soql = (
             "SELECT Id, Body__c, Is_Inbound__c, CreatedDate, CreatedBy.Name, "
             "       Message_Type__c, AI_Model__c, AI_Helpful__c, AI_Escalated__c, "
-            "       AI_Response_Time__c, Escalated_From__c "
+            "       AI_Response_Time__c, Escalated_From__c, "
+            "       Original_Target__c, Final_Target__c, Target_Changed__c "
             "FROM ChatMessage__c "
             f"WHERE Parent_Record__c = '{soql_escape(journal_id)}' " +
             (f"AND CreatedDate > {since} " if since else "") +
@@ -1532,7 +1533,10 @@ def handle_identifier_chat_list(event, data):
             "aiHelpful": r.get("AI_Helpful__c", False),
             "aiEscalated": r.get("AI_Escalated__c", False),
             "aiResponseTime": r.get("AI_Response_Time__c"),
-            "escalatedFrom": r.get("Escalated_From__c")
+            "escalatedFrom": r.get("Escalated_From__c"),
+            "originalTarget": r.get("Original_Target__c"),
+            "finalTarget": r.get("Final_Target__c"),
+            "targetChanged": r.get("Target_Changed__c", False)
         } for r in rows]
         return resp(event, 200, {"ok": True, "messages": msgs})
     except Exception as e:
@@ -1568,12 +1572,6 @@ def handle_identifier_chat_send(event, data):
     
     journal_id = (data.get("journalId") or "").strip()
     body       = (data.get("body") or "").strip()
-    message_type = (data.get("messageType") or "Human").strip()
-    
-    # NEW: Routing metadata fields
-    original_target = (data.get("originalTarget") or "Human").strip()
-    final_target = (data.get("finalTarget") or "Human").strip()
-    target_changed = data.get("targetChanged", False)
     
     if not journal_id:
         log("CHAT_SEND_ERROR: Missing journalId in data. Full data:", data)
@@ -1586,22 +1584,18 @@ def handle_identifier_chat_send(event, data):
     try:
         org_tok, inst = get_org_token()
         
-        # Insert message scoped to journal with routing metadata
+        # Insert inbound message to Human (default chat mode)
+        # Original_Target__c = Human (since they're in human chat mode)
+        # Message_Type__c is only for OUTBOUND messages
         message_fields = {
             "Parent_Record__c": journal_id,
             "Body__c": body,
             "Is_Inbound__c": True,
-            "Message_Type__c": message_type,
+            "Original_Target__c": "Human"  # They asked a human
         }
         
-        # Add routing metadata if available (will gracefully handle missing Salesforce fields)
-        if original_target or final_target or target_changed:
-            message_fields["Original_Target__c"] = original_target
-            message_fields["Final_Target__c"] = final_target
-            message_fields["Target_Changed__c"] = target_changed
-        
         rec_id = salesforce_insert(inst, org_tok, "ChatMessage__c", message_fields)
-        log(f"CHAT_SEND_SUCCESS: Created message {rec_id} with routing: original={original_target}, final={final_target}, changed={target_changed}")
+        log(f"CHAT_SEND_SUCCESS: Created message {rec_id} (Original_Target=Human)")
         return resp(event, 200, {"ok": True, "id": rec_id})
     except Exception as e:
         log("identifier_chat_send error:", repr(e))
@@ -1650,11 +1644,6 @@ def handle_identifier_chat_ask(event, data):
     question = (data.get("question") or "").strip()
     brand = (data.get("brand") or detect_brand(event, None) or "dk").strip().lower()
     
-    # NEW: Routing metadata (for tracking if user switched from Human to AI)
-    original_target = (data.get("originalTarget") or "AI").strip()
-    final_target = (data.get("finalTarget") or "AI").strip()
-    target_changed = data.get("targetChanged", False)
-    
     if not all([journal_id, document_id, question]):
         return resp(event, 400, {
             "error": "Missing required fields",
@@ -1688,21 +1677,20 @@ def handle_identifier_chat_ask(event, data):
         log(f"AI: Processing question for document: {s3_key}")
         
         # 1. CREATE customer's question (inbound ChatMessage) with routing metadata
+        #    Original_Target__c = AI (since they asked AI)
+        #    Final_Target__c and Target_Changed__c will be set later if user changes routing
         inbound_fields = {
             "Parent_Record__c": journal_id,
             "Body__c": question,
             "Is_Inbound__c": True,
-            "Message_Type__c": "Human"
+            "Original_Target__c": "AI"  # They asked the AI
         }
         
-        # Add routing metadata if available
-        if original_target or final_target or target_changed:
-            inbound_fields["Original_Target__c"] = original_target
-            inbound_fields["Final_Target__c"] = final_target
-            inbound_fields["Target_Changed__c"] = target_changed
+        # Note: Message_Type__c is only for OUTBOUND messages
+        # Final_Target__c and Target_Changed__c are initially null/false
         
         inbound_id = salesforce_insert(inst, org_tok, "ChatMessage__c", inbound_fields)
-        log(f"AI: Created inbound ChatMessage: {inbound_id} (routing: {original_target}->{final_target}, changed={target_changed})")
+        log(f"AI: Created inbound ChatMessage: {inbound_id} (Original_Target=AI)")
         
         # Get or extract document text
         start_time = time.time()
@@ -1764,13 +1752,12 @@ def handle_identifier_chat_feedback(event, data):
     POST /identifier/chat/feedback
     Headers: Authorization: Bearer <session-token>
     Body: {
-        "messageId": "a0V5g000002",
+        "messageId": "a0V5g000002",  // ID of the OUTBOUND AI message
         "action": "helpful" | "escalate"
     }
     
     Returns: {
-        "ok": true,
-        "escalatedMessageId": "a0V5g000003"  // only if action=escalate
+        "ok": true
     }
     """
     # Authorization: Bearer <session>
@@ -1797,36 +1784,39 @@ def handle_identifier_chat_feedback(event, data):
         org_tok, inst = get_org_token()
         
         if action == "helpful":
-            # Just mark AI message as helpful
+            # Mark the AI OUTBOUND message as helpful
             salesforce_patch(inst, org_tok, "ChatMessage__c", message_id, {
                 "AI_Helpful__c": True
             })
-            log(f"AI Feedback: Message {message_id} marked as helpful")
+            log(f"AI Feedback: Outbound message {message_id} marked as helpful")
             return resp(event, 200, {"ok": True})
         
         elif action == "escalate":
-            # 1. Get the AI message to find the journal and previous question
+            # 1. Get the AI OUTBOUND message to find the journal and timestamp
             ai_msg_soql = f"""
                 SELECT Id, Parent_Record__c, CreatedDate
                 FROM ChatMessage__c
                 WHERE Id = '{soql_escape(message_id)}'
+                  AND Is_Inbound__c = false
+                  AND Message_Type__c = 'AI'
                 LIMIT 1
             """
             ai_msg_result = salesforce_query(inst, org_tok, ai_msg_soql)
             if not ai_msg_result.get('records'):
-                return resp(event, 404, {"error": "AI message not found"})
+                return resp(event, 404, {"error": "AI outbound message not found"})
             
             ai_msg = ai_msg_result['records'][0]
             journal_id = ai_msg.get('Parent_Record__c')
+            ai_created = ai_msg.get('CreatedDate')
             
-            # 2. Find the original customer question (most recent inbound Human message before this AI message)
+            # 2. Find the original customer question (most recent INBOUND message before this AI outbound message)
+            #    This is the message we need to UPDATE (not create a new one)
             original_soql = f"""
-                SELECT Id, Body__c
+                SELECT Id, Body__c, Original_Target__c
                 FROM ChatMessage__c
                 WHERE Parent_Record__c = '{soql_escape(journal_id)}'
                   AND Is_Inbound__c = true
-                  AND Message_Type__c = 'Human'
-                  AND CreatedDate < {ai_msg.get('CreatedDate')}
+                  AND CreatedDate < {ai_created}
                 ORDER BY CreatedDate DESC
                 LIMIT 1
             """
@@ -1837,33 +1827,159 @@ def handle_identifier_chat_feedback(event, data):
                 return resp(event, 400, {"error": "Could not find original question"})
             
             original = original_result['records'][0]
-            original_question = original.get('Body__c', '')
+            original_id = original.get('Id')
+            original_target = original.get('Original_Target__c', 'AI')
             
-            # 3. Mark AI message as escalated
+            # 3. UPDATE the original INBOUND message to show it was escalated to Human
+            salesforce_patch(inst, org_tok, "ChatMessage__c", original_id, {
+                "Final_Target__c": "Human",
+                "Target_Changed__c": True,
+                "Escalated_From__c": message_id  # Link to the AI response they're escalating from
+            })
+            log(f"AI Escalate: Updated inbound message {original_id} (Original: {original_target} -> Final: Human)")
+            
+            # 4. Mark the AI OUTBOUND message as escalated (for reference)
             salesforce_patch(inst, org_tok, "ChatMessage__c", message_id, {
                 "AI_Escalated__c": True
             })
-            log(f"AI Escalate: Message {message_id} marked as escalated")
+            log(f"AI Escalate: Marked outbound AI message {message_id} as escalated")
             
-            # 4. Create new human-mode question (duplicate question for agent queue)
-            new_msg_id = salesforce_insert(inst, org_tok, "ChatMessage__c", {
-                "Parent_Record__c": journal_id,
-                "Body__c": original_question,
-                "Is_Inbound__c": True,
-                "Message_Type__c": "Human",
-                "Escalated_From__c": message_id
-            })
-            log(f"AI Escalate: Created new human message {new_msg_id} (escalated from {message_id})")
-            
-            return resp(event, 200, {
-                "ok": True,
-                "escalatedMessageId": new_msg_id
-            })
+            return resp(event, 200, {"ok": True})
         
     except Exception as e:
         log(f"AI Feedback ERROR: {repr(e)}")
         log("Full traceback:", traceback.format_exc())
         return resp(event, 500, {"error": "Feedback processing failed"})
+
+
+def handle_identifier_chat_switch_to_ai(event, data):
+    """
+    Handle switching a Human-targeted question to AI.
+    When user clicks "Ask AI" button on a message originally sent to Human.
+    
+    POST /identifier/chat/switch-to-ai
+    Headers: Authorization: Bearer <session-token>
+    Body: {
+        "messageId": "a0V5g000002",  // ID of the INBOUND Human message
+        "journalId": "a015g00000...",
+        "documentId": "a0M5g00000...",
+        "brand": "dk"  // optional
+    }
+    
+    Returns: {
+        "ok": true,
+        "answer": "AI response...",
+        "outboundMessageId": "a0V5g000003"
+    }
+    """
+    # Authorization: Bearer <session>
+    token = get_bearer(event)
+    if not token:
+        return resp(event, 401, {"error": "Missing session token"})
+    
+    try:
+        sess = verify_session(token)
+    except Exception:
+        return resp(event, 401, {"error": "Invalid or expired session"})
+    
+    # Parse request
+    message_id = (data.get("messageId") or "").strip()
+    journal_id = (data.get("journalId") or "").strip()
+    document_id = (data.get("documentId") or "").strip()
+    brand = (data.get("brand") or detect_brand(event, None) or "dk").strip().lower()
+    
+    if not all([message_id, journal_id, document_id]):
+        return resp(event, 400, {
+            "error": "Missing required fields",
+            "required": ["messageId", "journalId", "documentId"]
+        })
+    
+    try:
+        org_tok, inst = get_org_token()
+        
+        # 1. Get the original INBOUND message
+        msg_soql = f"""
+            SELECT Id, Body__c, Original_Target__c, Final_Target__c, Target_Changed__c
+            FROM ChatMessage__c
+            WHERE Id = '{soql_escape(message_id)}'
+              AND Is_Inbound__c = true
+              AND Parent_Record__c = '{soql_escape(journal_id)}'
+            LIMIT 1
+        """
+        msg_result = salesforce_query(inst, org_tok, msg_soql)
+        if not msg_result.get('records'):
+            return resp(event, 404, {"error": "Message not found"})
+        
+        msg = msg_result['records'][0]
+        question = msg.get('Body__c', '')
+        original_target = msg.get('Original_Target__c', 'Human')
+        
+        # 2. UPDATE the message to show it was switched to AI
+        salesforce_patch(inst, org_tok, "ChatMessage__c", message_id, {
+            "Final_Target__c": "AI",
+            "Target_Changed__c": True
+        })
+        log(f"Switch to AI: Updated message {message_id} (Original: {original_target} -> Final: AI)")
+        
+        # 3. Get document for AI processing
+        doc_soql = f"""
+            SELECT Id, Name, S3_Key__c, Journal__r.Name
+            FROM Shared_Document__c
+            WHERE Id = '{soql_escape(document_id)}'
+              AND Journal__c = '{soql_escape(journal_id)}'
+            LIMIT 1
+        """
+        doc_result = salesforce_query(inst, org_tok, doc_soql)
+        if not doc_result.get('records'):
+            return resp(event, 404, {"error": "Document not found"})
+        
+        doc = doc_result['records'][0]
+        s3_key = doc.get('S3_Key__c')
+        
+        if not s3_key:
+            return resp(event, 400, {"error": "Document has no S3 key"})
+        
+        log(f"Switch to AI: Processing question for document: {s3_key}")
+        
+        # 4. Get document text and ask AI
+        start_time = time.time()
+        document_text, was_cached = get_cached_text(s3_key)
+        
+        if not document_text:
+            log(f"Switch to AI ERROR: Could not extract text from {s3_key}")
+            return resp(event, 500, {"error": "Could not extract document text"})
+        
+        context = {
+            'name': doc.get('Name', 'Unknown'),
+            'journal_name': doc.get('Journal__r', {}).get('Name', ''),
+            'brand': brand
+        }
+        
+        answer = ask_ai_about_document(document_text, question, context)
+        elapsed_ms = int((time.time() - start_time) * 1000)
+        
+        # 5. CREATE AI's response (outbound ChatMessage)
+        outbound_id = salesforce_insert(inst, org_tok, "ChatMessage__c", {
+            "Parent_Record__c": journal_id,
+            "Body__c": answer,
+            "Is_Inbound__c": False,
+            "Message_Type__c": "AI",
+            "AI_Model__c": BEDROCK_MODEL_ID,
+            "AI_Response_Time__c": elapsed_ms
+        })
+        log(f"Switch to AI: Created outbound AI message {outbound_id}")
+        
+        return resp(event, 200, {
+            "ok": True,
+            "answer": answer,
+            "outboundMessageId": outbound_id,
+            "responseTimeMs": elapsed_ms
+        })
+        
+    except Exception as e:
+        log(f"Switch to AI ERROR: {repr(e)}")
+        log("Full traceback:", traceback.format_exc())
+        return resp(event, 500, {"error": "Switch to AI failed"})
 
 
 # ===================== HEALTH =====================
@@ -1946,6 +2062,7 @@ def lambda_handler(event, context):
         # Chat (identifier-specific routes MUST come before journal routes to avoid path collision!)
         if path.endswith("/identifier/chat/ask")        and method == "POST": return handle_identifier_chat_ask(event, data)
         if path.endswith("/identifier/chat/feedback")   and method == "POST": return handle_identifier_chat_feedback(event, data)
+        if path.endswith("/identifier/chat/switch-to-ai") and method == "POST": return handle_identifier_chat_switch_to_ai(event, data)
         if path.endswith("/identifier/chat/send")       and method == "POST": return handle_identifier_chat_send(event, data)
         if path.endswith("/identifier/chat/list")       and method == "POST": return handle_identifier_chat_list(event, data)
         
