@@ -18,7 +18,7 @@
    Konfiguration & helpers
 ------------------------------------------------------------------ */
 const API  = new URLSearchParams(location.search).get('api')
-          || 'https://21tpssexjd.execute-api.eu-north-1.amazonaws.com';
+          || 'https://ysu7eo2haj.execute-api.eu-north-1.amazonaws.com/prod';
 
 // Journal endpoints (unchanged)
 const OTP_VERIFY = `${API}/otp-verify`,

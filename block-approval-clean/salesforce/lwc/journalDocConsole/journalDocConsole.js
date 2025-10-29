@@ -38,6 +38,10 @@ const LETTERS = 'A-Za-zÀ-ÖØ-öø-ÿÆØÅæøå';
 const WORD_SEP = new RegExp(`(^|[^${LETTERS}])`);
 const WORD_END = new RegExp(`([^${LETTERS}]|$)`);
 
+/** 1x1 transparent PNG to fully hide the native drag image in all browsers */
+const TRANSPARENT_PX =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8Xw8AAn0B9zq8S1cAAAAASUVORK5CYII=';
+
 export default class JournalDocConsole extends LightningElement {
   /* ========== reactive state ========== */
   @api   recordId;          // Journal__c.Id
@@ -65,6 +69,8 @@ export default class JournalDocConsole extends LightningElement {
 
   /* drag-n-drop */
   _dragId = null;
+  _dragGhost = null;
+  _onWindowDragOver = null;
 
   /* picklist meta (for dependent picklist) */
   recordTypeId;
@@ -552,7 +558,12 @@ export default class JournalDocConsole extends LightningElement {
     if (!id) return;
     try {
       await updateBlockApproval({ docId: id, isBlocked: isChecked });
-      this.docs = this.docs.map(d => d.id === id ? { ...d, isApprovalBlocked: isChecked } : d);
+      // Update isApprovalBlocked AND rowBoxClass immediately
+      this.docs = this.docs.map(d => d.id === id ? { 
+        ...d, 
+        isApprovalBlocked: isChecked,
+        rowBoxClass: isChecked ? 'slds-box row-box blocked-approval' : 'slds-box row-box'
+      } : d);
       this._flashTypeSaved(id); // reuse existing flash animation
       this._setSuccess('Approval block updated.');
     } catch (e) {
@@ -601,21 +612,70 @@ export default class JournalDocConsole extends LightningElement {
     this._justCreatedIds.clear();
   }
 
-  /* ========== Drag & Drop handlers (NEW) ========== */
+  /* ========== Drag & Drop handlers (UPDATED) ========== */
 
   onDragStart(evt) {
     const id = evt?.target?.dataset?.id;
     if (!id) return;
     this._dragId = id;
+
+    // Find the document name for the ghost
+    const doc = this.docs.find(d => d.id === id);
+    const docName = doc?.name || 'Document';
+
+    // Create ghost element (lives inside component so CSS applies)
+    this._dragGhost = document.createElement('div');
+    this._dragGhost.className = 'drag-ghost';
+    this._dragGhost.textContent = docName;
+
+    const host = this.template.querySelector('.drag-ghost-host');
+    (host || document.body).appendChild(this._dragGhost);
+
+    // Initial position at cursor
+    this._updateGhostPosition(evt.clientX, evt.clientY);
+
+    // Dim original row visually
+    const draggedElement = evt.currentTarget.closest('.row-box');
+    if (draggedElement) draggedElement.classList.add('dragging');
+
+    // Track cursor globally while dragging (works across the whole page)
+    this._onWindowDragOver = (e) => {
+      if (!this._dragGhost) return;
+      // Some browsers may emit 0,0 – ignore those
+      if (e.clientX || e.clientY) {
+        this._updateGhostPosition(e.clientX, e.clientY);
+      }
+    };
+    window.addEventListener('dragover', this._onWindowDragOver, true);
+
+    // Configure native DnD
     try {
-      evt.dataTransfer.effectAllowed = 'move';
-      evt.dataTransfer.setData('text/plain', id);
+      if (evt.dataTransfer) {
+        evt.dataTransfer.effectAllowed = 'move';
+        evt.dataTransfer.setData('text/plain', id);
+        // Hide default ghost image in all browsers
+        const img = new Image();
+        img.src = TRANSPARENT_PX;
+        if (evt.dataTransfer.setDragImage) {
+          evt.dataTransfer.setDragImage(img, 0, 0);
+        }
+      }
     } catch (_e) { /* ignore */ }
+  }
+
+  _updateGhostPosition(x, y) {
+    if (!this._dragGhost) return;
+    this._dragGhost.style.left = x + 'px';
+    this._dragGhost.style.top  = y + 'px';
   }
 
   onDragOver(evt) {
     evt.preventDefault(); // allow drop
     if (evt?.dataTransfer) evt.dataTransfer.dropEffect = 'move';
+    // keep ghost aligned even within valid targets
+    if (evt.clientX || evt.clientY) {
+      this._updateGhostPosition(evt.clientX, evt.clientY);
+    }
     const el = evt?.currentTarget;
     if (el) el.classList.add('drag-over');
   }
@@ -625,10 +685,20 @@ export default class JournalDocConsole extends LightningElement {
     if (el) el.classList.remove('drag-over');
   }
 
+  onDragEnd(_evt) {
+    // Drag cancelled or dropped outside targets
+    this._cleanupDragGhost();
+  }
+
   async onDrop(evt) {
     evt.preventDefault();
+
+    // Ensure any highlight is cleared
     const el = evt?.currentTarget;
     if (el) el.classList.remove('drag-over');
+
+    // Clean up ghost and dragging state
+    this._cleanupDragGhost();
 
     const targetId = el?.dataset?.id;
     const sourceId = this._dragId || (evt?.dataTransfer?.getData('text/plain') || '');
@@ -652,6 +722,32 @@ export default class JournalDocConsole extends LightningElement {
       this._toast('Error', msg, 'error');
       await this.refreshDocs();
     }
+  }
+
+  _cleanupDragGhost() {
+    // Remove global listener
+    if (this._onWindowDragOver) {
+      window.removeEventListener('dragover', this._onWindowDragOver, true);
+      this._onWindowDragOver = null;
+    }
+
+    // Remove ghost element
+    if (this._dragGhost && this._dragGhost.parentNode) {
+      this._dragGhost.parentNode.removeChild(this._dragGhost);
+    }
+    this._dragGhost = null;
+
+    // Remove dragging class from any rows
+    const draggedElements = this.template.querySelectorAll('.dragging');
+    draggedElements.forEach(el => el.classList.remove('dragging'));
+
+    // Clear any remaining drop highlights
+    this._clearAllDragOverHighlights();
+  }
+
+  _clearAllDragOverHighlights() {
+    const els = this.template.querySelectorAll('.row-box.drag-over');
+    els.forEach(el => el.classList.remove('drag-over'));
   }
 
   _reorderNewest(fromId, toId) {
@@ -724,5 +820,10 @@ export default class JournalDocConsole extends LightningElement {
     // auto-hide after a few seconds
     if (this._msgTimer) clearTimeout(this._msgTimer);
     this._msgTimer = setTimeout(() => { this._clearMessages(); }, 8000);
+  }
+
+  disconnectedCallback() {
+    // Safety: ensure no listeners or ghosts linger if component is removed
+    this._cleanupDragGhost();
   }
 }

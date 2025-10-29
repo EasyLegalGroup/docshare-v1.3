@@ -1,6 +1,6 @@
 {
     "fileVersion": 0,
-    "serverMaxRevisionCounter": 13918,
+    "serverMaxRevisionCounter": 13945,
     "sourceMembers": {
         "PermissionSet__sfdcInternalInt__sfdc_scrt2": {
             "memberType": "PermissionSet",
@@ -1900,20 +1900,20 @@
         },
         "ApexClass__DocShareService": {
             "memberType": "ApexClass",
-            "serverRevisionCounter": 13889,
-            "lastRetrievedFromServer": 13889,
+            "serverRevisionCounter": 13920,
+            "lastRetrievedFromServer": 13920,
             "isNameObsolete": false
         },
         "ApexClass__DocShareService_Coverage": {
             "memberType": "ApexClass",
-            "serverRevisionCounter": 11004,
-            "lastRetrievedFromServer": null,
+            "serverRevisionCounter": 13921,
+            "lastRetrievedFromServer": 13921,
             "isNameObsolete": false
         },
         "ApexClass__DocShareService_Tests": {
             "memberType": "ApexClass",
-            "serverRevisionCounter": 11005,
-            "lastRetrievedFromServer": null,
+            "serverRevisionCounter": 13922,
+            "lastRetrievedFromServer": 13922,
             "isNameObsolete": false
         },
         "ExternalClientApplication__DFJ_Doc_Presigner": {
@@ -2206,32 +2206,32 @@
         },
         "LightningComponentBundle__journalDocConsole": {
             "memberType": "LightningComponentBundle",
-            "serverRevisionCounter": 13914,
-            "lastRetrievedFromServer": 13914,
+            "serverRevisionCounter": 13941,
+            "lastRetrievedFromServer": 13941,
             "isNameObsolete": false
         },
         "LightningComponentResource__journalDocConsole/journalDocConsole.js": {
             "memberType": "LightningComponentResource",
-            "serverRevisionCounter": 13915,
-            "lastRetrievedFromServer": 13915,
+            "serverRevisionCounter": 13942,
+            "lastRetrievedFromServer": 13942,
             "isNameObsolete": false
         },
         "LightningComponentResource__journalDocConsole/journalDocConsole.js-meta.xml": {
             "memberType": "LightningComponentResource",
-            "serverRevisionCounter": 13916,
-            "lastRetrievedFromServer": 13916,
+            "serverRevisionCounter": 13943,
+            "lastRetrievedFromServer": 13943,
             "isNameObsolete": false
         },
         "LightningComponentResource__journalDocConsole/journalDocConsole.html": {
             "memberType": "LightningComponentResource",
-            "serverRevisionCounter": 13917,
-            "lastRetrievedFromServer": 13917,
+            "serverRevisionCounter": 13944,
+            "lastRetrievedFromServer": 13944,
             "isNameObsolete": false
         },
         "LightningComponentResource__journalDocConsole/journalDocConsole.css": {
             "memberType": "LightningComponentResource",
-            "serverRevisionCounter": 13918,
-            "lastRetrievedFromServer": 13918,
+            "serverRevisionCounter": 13945,
+            "lastRetrievedFromServer": 13945,
             "isNameObsolete": false
         },
         "CorsWhitelistOrigin__https_21tpssexjd_execute_api_eu_north_1_amazonaws_com": {

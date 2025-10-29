@@ -248,7 +248,8 @@ public with sharing class DocShareService {
                    S3_Key__c,
                    Is_Guidance_Acknowledged__c,
                    Time_of_Guidance_Acknowledge__c,
-                   Sort_Order__c
+                   Sort_Order__c,
+                   Is_Approval_Blocked__c
             FROM Shared_Document__c
             WHERE Journal__c = :journalId
             ORDER BY Sort_Order__c NULLS LAST, Name
@@ -364,6 +365,23 @@ public with sharing class DocShareService {
             update doc;
         } catch (Exception e) {
             throw new AuraHandledException('Failed to update approval block: ' + e.getMessage());
+        }
+    }
+
+    // NEW: LWC helper to save individual sort order
+    @AuraEnabled(cacheable=false)
+    public static void saveSortOrder(Id docId, Decimal sortOrder){
+        if (docId == null) throw new AuraHandledException('docId is required.');
+        
+        Shared_Document__c doc = new Shared_Document__c(
+            Id = docId,
+            Sort_Order__c = sortOrder
+        );
+        
+        try {
+            update doc;
+        } catch (Exception e) {
+            throw new AuraHandledException('Failed to update sort order: ' + e.getMessage());
         }
     }
 

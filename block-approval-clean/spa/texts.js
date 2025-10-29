@@ -79,7 +79,7 @@
       /* blocked approval */
       BLOCKED_APPROVAL_HEADER : 'Dokumentet kan ikke godkendes',
       BLOCKED_APPROVAL_BODY : 'Din jurist har deaktiveret muligheden for at godkende dette dokument, da der mangler oplysninger, før du kan afgive din endelige godkendelse. Hvis du stadig er i tvivl om, hvad der mangler, efter at have læst dokumentet igennem, så brug chatten til højre for at kontakte os.',
-      APPROVAL_BLOCKED_HINT : 'Godkendelse er blokeret af din jurist',
+      APPROVAL_BLOCKED_HINT : 'Kan ikke godkendes endnu. Information mangler.',
       APPROVAL_BLOCKED_TOOLTIP : 'Kan ikke godkendes endnu. Information mangler.',
       CLOSE : 'Luk',
 
@@ -350,7 +350,7 @@
       /* blockerat godkännande */
       BLOCKED_APPROVAL_HEADER : 'Dokumentet kan inte godkännas',
       BLOCKED_APPROVAL_BODY : 'Din jurist har inaktiverat möjligheten att godkänna detta dokument, eftersom viss information fortfarande krävs innan du kan lämna ditt slutgiltiga godkännande. Om du fortfarande är osäker på vad som saknas efter att ha läst igenom ditt dokument, vänligen använd chatten till höger för att kontakta oss.',
-      APPROVAL_BLOCKED_HINT : 'Godkännande är blockerat av din jurist',
+      APPROVAL_BLOCKED_HINT : 'Kan inte godkännas ännu. Information saknas.',
       APPROVAL_BLOCKED_TOOLTIP : 'Kan inte godkännas ännu. Information saknas.',
       CLOSE : 'Stäng',
 
@@ -619,7 +619,7 @@
       /* blocked approval */
       BLOCKED_APPROVAL_HEADER : 'Document cannot be approved',
       BLOCKED_APPROVAL_BODY : 'Your lawyer has disabled the ability to approve this document, as some information is still required, before you can submit your final approval. If you\'re still in doubt about what\'s missing, after reading through your document, please use the chat on the right side, to contact us.',
-      APPROVAL_BLOCKED_HINT : 'Approval is blocked by your lawyer',
+      APPROVAL_BLOCKED_HINT : 'Cannot be approved yet. Information missing.',
       APPROVAL_BLOCKED_TOOLTIP : 'Cannot be approved yet. Information missing.',
       CLOSE : 'Close',
 

@@ -111,7 +111,8 @@
                                   title="Drag to reorder"
                                   draggable="true"
                                   data-id={d.id}
-                                  ondragstart={onDragStart}>
+                                  ondragstart={onDragStart}
+                                  ondragend={onDragEnd}>
                               <lightning-icon icon-name="utility:rows"
                                               size="x-small"
                                               alternative-text="Reorder"></lightning-icon>
@@ -298,6 +299,9 @@
       <template if:true={messageError}>
         <div class="slds-m-top_medium slds-text-color_error">{messageError}</div>
       </template>
+
+      <!-- Drag ghost outlet (so scoped CSS applies to the ghost) -->
+      <div class="drag-ghost-host" lwc:dom="manual"></div>
     </div>
   </lightning-card>
 </template>

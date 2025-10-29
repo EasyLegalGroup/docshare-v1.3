@@ -133,6 +133,31 @@
   outline-offset: 2px;
 }
 
+/* dragging ghost element that follows cursor */
+.drag-ghost {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0.85;
+  background: white;
+  border: 2px solid #0070d2;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: #0070d2;
+  transform: translate(-50%, -50%);
+}
+
+/* dim the original item being dragged */
+.row-box.dragging {
+  opacity: 0.4;
+}
+
 /* ========== Busy overlay to block UI during long operations ========== */
 .busy-overlay {
   position: fixed;
