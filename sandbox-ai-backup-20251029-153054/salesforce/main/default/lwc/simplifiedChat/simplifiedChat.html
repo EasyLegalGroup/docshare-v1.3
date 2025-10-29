@@ -1,0 +1,83 @@
+<template>
+    <div class="chat-container">
+        <!-- Messages ---------------------------------------------------- -->
+        <div class="chat-messages">
+            <template if:true={hasMessages}>
+                <template for:each={messages} for:item="message">
+                    <div key={message.Id} class={message.messageClass}>
+                        <div class="message-bubble">
+                            <div class="message-content">
+                                <lightning-formatted-rich-text
+                                    value={message.Body__c}>
+                                </lightning-formatted-rich-text>
+                            </div>
+
+                            <!-- AI Info (if AI message with model info) -->
+                            <template if:true={message.AI_Model__c}>
+                                <div class="ai-info">
+                                    <span>Model: {message.AI_Model__c}</span>
+                                    <template if:true={message.AI_Response_Time__c}>
+                                        <span> • Response time: {message.AI_Response_Time__c}ms</span>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <div class="message-meta">
+                                <span class="message-label">
+                                    {message.displayLabel}
+                                </span>
+                                <span class="message-time">
+                                    {message.formattedDate}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Interaction Pills (outside bubble) -->
+                        <template if:true={message.hasPills}>
+                            <div class="interaction-pills">
+                                <template for:each={message.pills} for:item="pill">
+                                    <lightning-badge 
+                                        key={pill.label}
+                                        label={pill.label} 
+                                        class={pill.variant}>
+                                    </lightning-badge>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </template>
+
+            <template if:false={hasMessages}>
+                <div class="empty-state">
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            </template>
+        </div>
+
+        <!-- Input row ---------------------------------------------------- -->
+        <div class="chat-input">
+            <div class="input-container">
+                <!-- Rich-text editor for composing a message -->
+                <lightning-input-rich-text
+                    value={messageText}
+                    onchange={handleMessageChange}
+                    onkeydown={handleKeyDown}
+                    label="Compose"
+                    label-visible="false"
+                    placeholder="Type your message..."
+                    formats="bold italic underline list"
+                    class="message-input">
+                </lightning-input-rich-text>
+
+                <lightning-button
+                    variant="brand"
+                    label="Send"
+                    onclick={sendMessage}
+                    disabled={sendDisabled}
+                    class="send-button">
+                </lightning-button>
+            </div>
+        </div>
+    </div>
+</template>

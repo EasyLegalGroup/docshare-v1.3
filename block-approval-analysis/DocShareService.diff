@@ -1,0 +1,27 @@
+--- prod-retrieved/classes/DocShareService.cls	2025-10-29 15:15:00
++++ vscode attempt/salesforce/classes/DocShareService.cls	2025-10-29 14:34:53
+@@ -350,6 +350,23 @@
+         if (!updates.isEmpty()) update updates;
+     }
+ 
++    // NEW: LWC helper to update approval blocking
++    @AuraEnabled(cacheable=false)
++    public static void updateBlockApproval(Id docId, Boolean isBlocked){
++        if (docId == null) throw new AuraHandledException('docId is required.');
++        
++        Shared_Document__c doc = new Shared_Document__c(
++            Id = docId,
++            Is_Approval_Blocked__c = isBlocked
++        );
++        
++        try {
++            update doc;
++        } catch (Exception e) {
++            throw new AuraHandledException('Failed to update approval block: ' + e.getMessage());
++        }
++    }
++
+     // ===== helpers =====
+     private static String deriveNameFromKey(String key) {
+         if (String.isBlank(key)) return null;
+\ No newline at end of file

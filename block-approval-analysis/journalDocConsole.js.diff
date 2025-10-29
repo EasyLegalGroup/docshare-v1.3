@@ -1,0 +1,57 @@
+--- prod-retrieved/lwc/journalDocConsole/journalDocConsole.js	2025-10-29 15:14:48
++++ vscode attempt/salesforce/lwc/journalDocConsole/journalDocConsole.js	2025-10-29 14:34:53
+@@ -10,6 +10,7 @@
+ import replaceSharedDocument from '@salesforce/apex/DocShareService.replaceSharedDocument';
+ import getByJournal          from '@salesforce/apex/DocShare_Query.getByJournal';
+ import setDocumentOrder      from '@salesforce/apex/DocShareService.setDocumentOrder';
++import updateBlockApproval   from '@salesforce/apex/DocShareService.updateBlockApproval';
+ 
+ /* ---------- Schema ---------- */
+ import JOURNAL_ID   from '@salesforce/schema/Journal__c.Id';
+\ No newline at end of file
+@@ -178,6 +179,7 @@
+       const isNewest   = r.isNewestVersion === true;
+       const marketUnit = r.marketUnit;
+       const docType    = r.documentType;
++      const isApprovalBlocked = r.isApprovalBlocked === true;
+ 
+       const sent  = r.sentDate;
+       const first = r.firstViewed;
+\ No newline at end of file
+@@ -191,6 +193,8 @@
+         isNewest,
+         marketUnit,
+         docType,
++        isApprovalBlocked,
++        showBlockApprovalCheckbox: (status !== 'Approved'),
+ 
+         // activity dates + formatted
+         sentDate: sent,
+\ No newline at end of file
+@@ -539,6 +543,25 @@
+     }
+   }
+ 
++  /* ========== Block Approval: checkbox change ========== */
++
++  async onBlockApprovalChange(evt) {
++    const id = evt?.target?.dataset?.id;
++    const isChecked = evt?.target?.checked;
++    if (!id) return;
++    try {
++      await updateBlockApproval({ docId: id, isBlocked: isChecked });
++      this.docs = this.docs.map(d => d.id === id ? { ...d, isApprovalBlocked: isChecked } : d);
++      this._flashTypeSaved(id); // reuse existing flash animation
++      this._setSuccess('Approval block updated.');
++    } catch (e) {
++      const msg = e?.body?.message || e?.message || 'Could not update approval block.';
++      this._setError(msg);
++      this._toast('Error', msg, 'error');
++      await this.refreshDocs();
++    }
++  }
++
+   _flashTypeSaved(id) {
+     // show
+     this.docs = this.docs.map(d => d.id === id ? { ...d, flashSaved: true } : d);
+\ No newline at end of file

@@ -1,0 +1,61 @@
+--- prod-retrieved/classes/DocShare_Query.cls	2025-10-29 15:15:16
++++ vscode attempt/salesforce/classes/DocShare_Query.cls	2025-10-29 14:34:53
+@@ -8,7 +8,7 @@
+         @AuraEnabled public String  s3Key;
+         @AuraEnabled public Boolean isNewestVersion;
+ 
+-        // NEW: more surfaced fields
++        // surfaced fields
+         @AuraEnabled public String   documentType;
+         @AuraEnabled public String   marketUnit;
+         @AuraEnabled public Date     sentDate;
+\ No newline at end of file
+@@ -16,6 +16,12 @@
+         @AuraEnabled public Datetime lastViewed;
+         @AuraEnabled public Boolean  isGuidanceAcknowledged;
+         @AuraEnabled public Datetime timeOfGuidanceAcknowledge;
++
++        // NEW: sort order
++        @AuraEnabled public Integer  sortOrder;
++        
++        // NEW: block approval
++        @AuraEnabled public Boolean  isApprovalBlocked;
+     }
+ 
+     @AuraEnabled(cacheable=true)
+\ No newline at end of file
+@@ -37,10 +43,12 @@
+                    First_Viewed__c,
+                    Last_Viewed__c,
+                    Is_Guidance_Acknowledged__c,
+-                   Time_of_Guidance_Acknowledge__c
++                   Time_of_Guidance_Acknowledge__c,
++                   Sort_Order__c,
++                   Is_Approval_Blocked__c
+             FROM Shared_Document__c
+             WHERE Journal__c = :journalId
+-            ORDER BY Name
++            ORDER BY Sort_Order__c NULLS LAST, Name
+             LIMIT 500
+         ];
+ 
+\ No newline at end of file
+@@ -54,7 +62,6 @@
+             d.s3Key            = r.S3_Key__c;
+             d.isNewestVersion  = r.Is_Newest_Version__c;
+ 
+-            // NEW mappings
+             d.documentType              = r.Document_Type__c;
+             d.marketUnit                = r.Market_Unit__c;
+             d.sentDate                  = r.Sent_Date__c;
+\ No newline at end of file
+@@ -63,6 +70,8 @@
+             d.isGuidanceAcknowledged    = r.Is_Guidance_Acknowledged__c;
+             d.timeOfGuidanceAcknowledge = r.Time_of_Guidance_Acknowledge__c;
+ 
++            d.sortOrder = (r.Sort_Order__c == null) ? null : Integer.valueOf(r.Sort_Order__c);
++            d.isApprovalBlocked = (r.Is_Approval_Blocked__c == true);
+             out.add(d);
+         }
+         return out;
+\ No newline at end of file

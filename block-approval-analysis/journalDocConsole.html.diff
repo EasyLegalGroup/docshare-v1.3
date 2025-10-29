@@ -1,0 +1,50 @@
+--- prod-retrieved/lwc/journalDocConsole/journalDocConsole.html	2025-10-29 15:14:48
++++ vscode attempt/salesforce/lwc/journalDocConsole/journalDocConsole.html	2025-10-29 14:34:53
+@@ -140,7 +140,21 @@
+                             </lightning-combobox>
+                           </div>
+ 
+-                          <!-- row 3 : meta + actions (pulled up via tighter spacing above) -->
++                          <!-- row 3 : block approval checkbox (if not Approved) -->
++                          <template if:true={d.showBlockApprovalCheckbox}>
++                            <div class="slds-m-top_x-small slds-m-bottom_x-small">
++                              <lightning-input
++                                type="checkbox"
++                                label="Block Approval"
++                                checked={d.isApprovalBlocked}
++                                data-id={d.id}
++                                onchange={onBlockApprovalChange}
++                                disabled={busy}>
++                              </lightning-input>
++                            </div>
++                          </template>
++
++                          <!-- row 4 : meta + actions (pulled up via tighter spacing above) -->
+                           <div class="slds-grid slds-grid_align-spread slds-align-middle" style="width:100%;">
+                             <!-- left group : pills -->
+                             <div class="pill-row">
+\ No newline at end of file
+@@ -231,7 +245,21 @@
+                             </lightning-combobox>
+                           </div>
+ 
+-                          <!-- row 3 : meta + actions -->
++                          <!-- row 3 : block approval checkbox (if not Approved) -->
++                          <template if:true={d.showBlockApprovalCheckbox}>
++                            <div class="slds-m-top_x-small slds-m-bottom_x-small">
++                              <lightning-input
++                                type="checkbox"
++                                label="Block Approval"
++                                checked={d.isApprovalBlocked}
++                                data-id={d.id}
++                                onchange={onBlockApprovalChange}
++                                disabled={busy}>
++                              </lightning-input>
++                            </div>
++                          </template>
++
++                          <!-- row 4 : meta + actions -->
+                           <div class="slds-grid slds-grid_align-spread slds-align-middle" style="width:100%;">
+                             <div class="pill-row">
+                               <span class="slds-badge">v{d.version}</span>
+\ No newline at end of file
