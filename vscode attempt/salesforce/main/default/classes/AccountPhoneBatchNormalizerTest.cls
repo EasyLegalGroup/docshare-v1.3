@@ -140,34 +140,26 @@ private class AccountPhoneBatchNormalizerTest {
     @isTest
     static void testBatchPersonAccounts() {
         // Test Person Account phone normalization in batch
-        try {
-            Account acc = new Account(
-                FirstName = 'Person',
-                LastName = 'Account Test',
-                Market_Unit__c = 'DFJ_DK',
-                Phone = '42-45-51-50',
-                Spouse_Phone__pc = '87-65-43-21'
-            );
-            
-            insert acc;
-            
-            Test.startTest();
-            AccountPhoneBatchNormalizer batch = new AccountPhoneBatchNormalizer();
-            Database.executeBatch(batch, 200);
-            Test.stopTest();
-            
-            Account result = [SELECT Phone, Spouse_Phone__pc FROM Account WHERE Id = :acc.Id];
-            System.assertEquals('+4542455150', result.Phone);
-            System.assertEquals('+4587654321', result.Spouse_Phone__pc);
-        } catch (Exception e) {
-            // Person Accounts might not be enabled
-            System.debug('Person Accounts not enabled: ' + e.getMessage());
-            // Still need to execute batch for coverage
-            Test.startTest();
-            AccountPhoneBatchNormalizer batch = new AccountPhoneBatchNormalizer();
-            Database.executeBatch(batch, 200);
-            Test.stopTest();
-        }
+        // Person Accounts need FirstName and LastName (not Name)
+        Account personAcc = new Account(
+            FirstName = 'Test',
+            LastName = 'Person Account',
+            Market_Unit__c = 'DFJ_DK',
+            Phone = '42-45-51-50',
+            Spouse_Phone__pc = '87-65-43-21'
+        );
+        
+        insert personAcc;
+        
+        Test.startTest();
+        AccountPhoneBatchNormalizer batch = new AccountPhoneBatchNormalizer();
+        Database.executeBatch(batch, 200);
+        Test.stopTest();
+        
+        Account result = [SELECT Phone, Spouse_Phone__pc, IsPersonAccount FROM Account WHERE Id = :personAcc.Id];
+        System.assertEquals(true, result.IsPersonAccount, 'Should be a Person Account');
+        System.assertEquals('+4542455150', result.Phone, 'Person account phone should be normalized');
+        System.assertEquals('+4587654321', result.Spouse_Phone__pc, 'Person account spouse phone should be normalized');
     }
     
     @isTest
@@ -254,23 +246,60 @@ private class AccountPhoneBatchNormalizerTest {
     
     @isTest
     static void testBatchWithDebugStatements() {
-        // Test to ensure debug statements are hit
-        Account acc = new Account(
-            Name = 'Debug Test',
+        // Test to ensure debug statements are hit and all branches covered
+        List<Account> accounts = new List<Account>();
+        
+        // Account needing normalization
+        accounts.add(new Account(
+            Name = 'Debug Test 1',
             Market_Unit__c = 'DFJ_DK',
             Phone = '42-45-51-50'
+        ));
+        
+        // Account already normalized (no update needed)
+        accounts.add(new Account(
+            Name = 'Debug Test 2',
+            Market_Unit__c = 'DFJ_DK',
+            Phone = '+4587654321'
+        ));
+        
+        insert accounts;
+        
+        Test.startTest();
+        AccountPhoneBatchNormalizer batch = new AccountPhoneBatchNormalizer();
+        Database.QueryLocator ql = batch.start(null);
+        List<Account> scope = Database.query(ql.getQuery());
+        
+        // Execute directly to ensure all paths are hit (don't call executeBatch again)
+        batch.execute(null, scope);
+        Test.stopTest();
+        
+        // Verify normalization occurred
+        List<Account> results = [SELECT Phone FROM Account WHERE Name LIKE 'Debug Test%' ORDER BY Name];
+        System.assertEquals('+4542455150', results[0].Phone, 'Phone should be normalized');
+        System.assertEquals('+4587654321', results[1].Phone, 'Already normalized should stay same');
+    }
+    
+    @isTest
+    static void testFinishMethod() {
+        // Test to cover the finish method
+        Account acc = new Account(
+            Name = 'Finish Test',
+            Market_Unit__c = 'DFJ_DK',
+            Phone = '42455150'
         );
         
         insert acc;
         
         Test.startTest();
         AccountPhoneBatchNormalizer batch = new AccountPhoneBatchNormalizer();
-        Database.QueryLocator ql = batch.start(null);
-        Database.executeBatch(batch, 1); // Process 1 at a time to ensure all code paths
+        Id batchId = Database.executeBatch(batch, 200);
         Test.stopTest();
         
-        // Verify normalization occurred
-        Account result = [SELECT Phone FROM Account WHERE Name = 'Debug Test'];
-        System.assertEquals('+4542455150', result.Phone);
+        // Verify batch completed
+        System.assertNotEquals(null, batchId);
+        
+        // Call finish explicitly to ensure coverage
+        batch.finish(null);
     }
 }
