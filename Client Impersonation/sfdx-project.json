@@ -1,0 +1,12 @@
+{
+  "packageDirectories": [
+    {
+      "path": "salesforce",
+      "default": true
+    }
+  ],
+  "name": "client-impersonation",
+  "namespace": "",
+  "sfdcLoginUrl": "https://login.salesforce.com",
+  "sourceApiVersion": "60.0"
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Allow_Approve__c</fullName>
+    <label>Allow Approve</label>
+    <description>Whether the lawyer can approve documents in this impersonation session</description>
+    <type>Checkbox</type>
+    <defaultValue>false</defaultValue>
+</CustomField>
