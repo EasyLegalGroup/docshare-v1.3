@@ -999,14 +999,16 @@ def handle_identifier_doc_url(event, event_json):
         if not s3_key:
             return resp(event, 400, {"error": "Missing S3 key"})
 
-        # Patch Last_Viewed__c and Sent->Viewed (like journal doc-url)
-        patch = {"Last_Viewed__c": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
-        if (doc.get("Status__c") or "").strip().lower() == "sent":
-            patch["Status__c"] = "Viewed"
-        try:
-            salesforce_patch(instance_url, org_token, "Shared_Document__c", doc_id, patch)
-        except Exception:
-            pass
+        # Patch Last_Viewed__c and Sent->Viewed (skip during impersonation)
+        is_impersonation = (sess.get("role") == "impersonation")
+        if not is_impersonation:
+            patch = {"Last_Viewed__c": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
+            if (doc.get("Status__c") or "").strip().lower() == "sent":
+                patch["Status__c"] = "Viewed"
+            try:
+                salesforce_patch(instance_url, org_token, "Shared_Document__c", doc_id, patch)
+            except Exception:
+                pass
 
         url = s3_presign_get(DOCS_BUCKET, s3_key, expires=SESSION_TTL_SECONDS)
         return resp(event, 200, {"ok": True, "url": url})
@@ -1080,6 +1082,7 @@ def handle_doc_url(event, event_json):
     if not s3_key:
         return resp(event, 400, {"error": "Missing S3 key"})
 
+    # Note: Journal mode doesn't support impersonation, but keeping pattern consistent
     patch = {"Last_Viewed__c": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")}
     if (doc.get("Status__c") or "").strip().lower() == "sent":
         patch["Status__c"] = "Viewed"
